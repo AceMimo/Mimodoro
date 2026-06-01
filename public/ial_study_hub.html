@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edexcel IAL Study Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+/* ===================== RESET & BASE ===================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Lato', sans-serif; font-weight: 300; background: #0d0f14; color: #e2e8f4; }
+
+/* ===================== NAV ===================== */
+#nav {
+  position: sticky; top: 0; z-index: 1000;
+  background: #0a0c12;
+  border-bottom: 1px solid #1e2540;
+  display: flex; align-items: center; gap: 0;
+  padding: 0 24px; height: 56px;
+}
+.nav-logo {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 15px; color: #fff; margin-right: 32px;
+  white-space: nowrap; letter-spacing: -0.3px;
+}
+.nav-logo span { color: #38bdf8; }
+.nav-tabs { display: flex; gap: 4px; flex: 1; overflow-x: auto; }
+.nav-tab {
+  padding: 8px 18px; border-radius: 8px;
+  font-size: 13px; font-family: 'IBM Plex Mono', monospace;
+  cursor: pointer; white-space: nowrap;
+  border: 1px solid transparent;
+  color: #64748b; transition: all 0.18s;
+  background: transparent;
+}
+.nav-tab:hover { color: #e2e8f4; background: #1a1f30; }
+.nav-tab.active { color: #fff; border-color: #1e2540; }
+.nav-tab.chem2.active { background: #2a1a1a; border-color: #c0392b40; color: #f87171; }
+.nav-tab.chem3.active { background: #1a2030; border-color: #1a527640; color: #60a5fa; }
+.nav-tab.phys2.active { background: #0f1e2e; border-color: #38bdf840; color: #38bdf8; }
+.nav-tab.phys3.active { background: #1a1f2e; border-color: #a78bfa40; color: #a78bfa; }
+.nav-tab.phys1.active { background: #0f2318; border-color: #34d39940; color: #34d399; }
+.phys1 .nav-badge { background: #34d39920; color: #34d399; }
+.nav-badge {
+  margin-left: 6px; padding: 1px 6px; border-radius: 4px;
+  font-size: 9px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
+}
+.chem2 .nav-badge { background: #c0392b30; color: #f87171; }
+.chem3 .nav-badge { background: #1a527630; color: #60a5fa; }
+.phys2 .nav-badge { background: #38bdf820; color: #38bdf8; }
+.phys3 .nav-badge { background: #a78bfa20; color: #a78bfa; }
+
+/* ===================== PANELS ===================== */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ============================================================
+   CHEMISTRY UNIT 2  — light theme, 18px base
+   ============================================================ */
+.c2 { font-family: 'Lato', sans-serif; font-weight: 300; line-height: 1.7; font-size: 18px; }
+.c2 header {
+  background: #1a1612; color: #faf7f2;
+  padding: 48px 40px 36px; position: relative; overflow: hidden;
+}
+.c2 header::before {
+  content: 'WCH12'; position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+  font-family: 'DM Mono', monospace; font-size: 96px; color: rgba(255,255,255,0.04); letter-spacing: -4px;
+}
+.c2 .header-label { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #c0a060; margin-bottom: 12px; }
+.c2 header h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px,5vw,52px); font-weight: 900; line-height: 1.1; margin-bottom: 8px; }
+.c2 .header-sub { font-size: 15px; color: rgba(250,247,242,0.55); font-family: 'DM Mono', monospace; }
+.c2 .exam-bar { background: #c0a060; display: flex; flex-wrap: wrap; }
+.c2 .exam-pill { padding: 10px 24px; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 1px; color: #1a1612; border-right: 1px solid rgba(0,0,0,0.15); }
+.c2 .exam-pill strong { font-weight: 700; }
+.c2 .section { padding: 36px 40px; background: #faf7f2; color: #1a1612; }
+.c2 .section-title { font-family: 'Playfair Display', serif; font-size: 23px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; color: #1a1612; }
+.c2 .section-title::after { content: ''; flex: 1; height: 1px; background: #e0d8cc; }
+.c2 .planner-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; }
+.c2 .day-card { background: #fff; border: 1px solid #e0d8cc; border-radius: 6px; padding: 10px 8px; min-height: 80px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.c2 .day-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+.c2 .day-card .dn { font-family: 'DM Mono', monospace; font-size: 11px; color: #7a6f63; margin-bottom: 4px; }
+.c2 .day-card .dt { font-weight: 700; font-size: 12.5px; line-height: 1.3; color: #1a1612; }
+.c2 .day-card .ds { color: #7a6f63; font-size: 11px; margin-top: 2px; }
+.c2 .day-card.rest { background: #f0ece4; }
+.c2 .day-card.exam { background: #1a1612; color: #faf7f2; }
+.c2 .day-card.exam .dn { color: #c0a060; }
+.c2 .day-card.exam .dt { color: #faf7f2; }
+.c2 .topic-block { margin-bottom: 14px; border-radius: 10px; border: 1px solid #e0d8cc; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.c2 .topic-block:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.c2 .topic-header { padding: 14px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; background: #fff; }
+.c2 .topic-header:hover { background: #f5f0e8; }
+.c2 .topic-num { font-family: 'DM Mono', monospace; font-size: 12px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; font-weight: 700; }
+.c2 .topic-title { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; flex: 1; color: #1a1612; }
+.c2 .topic-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.c2 .tag { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-family: 'DM Mono', monospace; background: rgba(0,0,0,0.06); color: #7a6f63; }
+.c2 .topic-arrow { font-size: 12px; color: #7a6f63; transition: transform 0.2s; }
+.c2 .topic-block.open .topic-arrow { transform: rotate(180deg); }
+.c2 .topic-body { display: none; padding: 0 20px 20px; background: white; }
+.c2 .topic-block.open .topic-body { display: block; animation: fadeSlide 0.25s ease forwards; }
+.c2 .subtopic-list { list-style: none; margin-bottom: 16px; }
+.c2 .subtopic-list li { padding: 7px 0; border-bottom: 1px solid #e0d8cc; font-size: 17px; display: flex; gap: 10px; align-items: flex-start; color: #2c2620; }
+.c2 .subtopic-list li:last-child { border-bottom: none; }
+.c2 .subtopic-list li::before { content: '→'; font-family: 'DM Mono', monospace; color: #7a6f63; font-size: 13px; margin-top: 2px; flex-shrink: 0; }
+.c2 .key-box { background: #f7f4ef; border-left: 3px solid; border-radius: 0 6px 6px 0; padding: 12px 14px; margin-top: 12px; }
+.c2 .key-box-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 500; }
+.c2 .key-box ul { list-style: none; }
+.c2 .key-box ul li { font-size: 16px; padding: 3px 0; color: #2c2620; }
+.c2 .key-box ul li::before { content: '◆ '; font-size: 8px; }
+.c2 .formula-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.c2 .formula-chip { background: #1a1612; color: #faf7f2; padding: 6px 12px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 15px; }
+.c2 .checklist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.c2 .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; background: white; border: 1px solid #e0d8cc; border-radius: 6px; font-size: 16px; cursor: pointer; color: #1a1612; transition: background 0.15s; }
+.c2 .check-item:hover { background: #f5f0e8; }
+.c2 .check-item input { margin-top: 2px; accent-color: #1a1612; flex-shrink: 0; }
+.c2 .check-item.done { background: #eef7ef; border-color: #b6ddb8; color: #7a6f63; text-decoration: line-through; }
+.c2 .tips-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.c2 .tip-card { background: white; border: 1px solid #e0d8cc; border-radius: 10px; padding: 18px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.c2 .tip-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.c2 .tip-icon { font-size: 22px; margin-bottom: 8px; }
+.c2 .tip-card h4 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 6px; color: #1a1612; }
+.c2 .tip-card p { font-size: 16px; color: #7a6f63; line-height: 1.6; }
+
+/* ============================================================
+   CHEMISTRY UNIT 3  — blue-light theme, 18px base
+   ============================================================ */
+.c3 { font-family: 'Lato', sans-serif; font-weight: 300; line-height: 1.7; font-size: 18px; }
+.c3 header { background: linear-gradient(135deg, #1e3a5f 0%, #0f4c81 60%, #1a6b8a 100%); color: white; padding: 48px 40px 36px; position: relative; overflow: hidden; }
+.c3 header::before { content: 'WCH13'; position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-family: 'DM Mono', monospace; font-size: 96px; color: rgba(255,255,255,0.05); letter-spacing: -4px; }
+.c3 .header-label { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #7dd3fc; margin-bottom: 12px; }
+.c3 header h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px,5vw,52px); font-weight: 900; line-height: 1.1; margin-bottom: 8px; }
+.c3 .header-sub { font-size: 15px; color: rgba(255,255,255,0.55); font-family: 'DM Mono', monospace; }
+.c3 .exam-bar { background: #1e3a5f; display: flex; flex-wrap: wrap; }
+.c3 .exam-pill { padding: 10px 24px; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 1px; color: #93c5fd; border-right: 1px solid rgba(255,255,255,0.1); }
+.c3 .exam-pill strong { color: #dbeafe; }
+.c3 .section { padding: 36px 40px; background: #f2f5fa; color: #111827; }
+.c3 .section-title { font-family: 'Playfair Display', serif; font-size: 23px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; color: #111827; }
+.c3 .section-title::after { content: ''; flex: 1; height: 1px; background: #d1d9e8; }
+.c3 .intro-card { background: #fff; border: 1px solid #d1d9e8; border-radius: 12px; padding: 24px; margin-bottom: 32px; border-left: 5px solid #1e40af; }
+.c3 .intro-card p { font-size: 17px; line-height: 1.8; color: #1f2937; }
+.c3 .intro-card strong { font-weight: 700; color: #1e40af; }
+.c3 .skills-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.c3 .skill-card { background: #fff; border: 1px solid #d1d9e8; border-radius: 8px; padding: 16px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.c3 .skill-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.c3 .skill-icon { font-size: 20px; margin-bottom: 8px; }
+.c3 .skill-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: #111827; }
+.c3 .skill-card p { font-size: 15px; color: #6b7280; line-height: 1.6; }
+.c3 .practicals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.c3 .prac-card { background: #fff; border: 1px solid #d1d9e8; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.c3 .prac-card:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.c3 .prac-header { padding: 12px 16px; display: flex; gap: 12px; align-items: center; cursor: pointer; }
+.c3 .prac-header:hover { background: #eff6ff; }
+.c3 .prac-num { font-family: 'DM Mono', monospace; font-size: 12px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; font-weight: 700; }
+.c3 .prac-title { font-weight: 700; font-size: 16px; flex: 1; line-height: 1.3; color: #111827; }
+.c3 .prac-unit-tag { font-family: 'DM Mono', monospace; font-size: 11px; padding: 2px 7px; border-radius: 20px; background: rgba(0,0,0,0.06); color: #6b7280; }
+.c3 .prac-arrow { color: #6b7280; font-size: 11px; transition: transform 0.2s; }
+.c3 .prac-card.open .prac-arrow { transform: rotate(180deg); }
+.c3 .prac-body { display: none; padding: 0 16px 16px; }
+.c3 .prac-card.open .prac-body { display: block; animation: fadeSlide 0.25s ease forwards; }
+.c3 .step-list { list-style: none; counter-reset: steps; }
+.c3 .step-list li { counter-increment: steps; position: relative; padding: 6px 0 6px 32px; font-size: 16px; border-bottom: 1px solid #d1d9e8; color: #374151; }
+.c3 .step-list li:last-child { border: none; }
+.c3 .step-list li::before { content: counter(steps); position: absolute; left: 0; top: 7px; width: 20px; height: 20px; border-radius: 50%; background: #111827; color: white; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 10px; }
+.c3 .warn-box { background: #fff7ed; border-left: 3px solid #f97316; border-radius: 0 6px 6px 0; padding: 10px 12px; margin-top: 12px; font-size: 14px; }
+.c3 .warn-box-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #c2410c; margin-bottom: 6px; }
+.c3 .warn-box ul { list-style: none; }
+.c3 .warn-box ul li { padding: 2px 0; color: #7c2d12; font-size: 14px; }
+.c3 .warn-box ul li::before { content: '⚠ '; }
+.c3 .source-box { background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 0 6px 6px 0; padding: 10px 12px; margin-top: 8px; font-size: 14px; color: #166534; }
+.c3 .source-box-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #15803d; margin-bottom: 6px; }
+.c3 .error-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.c3 .error-table th { background: #111827; color: white; padding: 10px 14px; text-align: left; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 1px; }
+.c3 .error-table td { padding: 10px 14px; border-bottom: 1px solid #d1d9e8; vertical-align: top; font-size: 14px; }
+.c3 .error-table tr:last-child td { border: none; }
+.c3 .error-table tr:hover td { background: #f8f9ff; }
+.c3 .error-table td:first-child { font-weight: 700; color: #991b1b; }
+.c3 .ms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.c3 .ms-card { background: white; border: 1px solid #d1d9e8; border-radius: 8px; padding: 16px; transition: transform 0.2s ease; }
+.c3 .ms-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.c3 .ms-card h4 { font-family: 'Playfair Display', serif; font-size: 16px; margin-bottom: 10px; color: #1e40af; }
+.c3 .ms-card ul { list-style: none; }
+.c3 .ms-card ul li { font-size: 15px; padding: 4px 0; border-bottom: 1px solid #f3f4f6; color: #374151; }
+.c3 .ms-card ul li:last-child { border: none; }
+.c3 .ms-card ul li::before { content: '✓ '; color: #22c55e; font-weight: 700; }
+.c3 .checklist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.c3 .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; background: white; border: 1px solid #d1d9e8; border-radius: 6px; font-size: 16px; cursor: pointer; color: #374151; transition: background 0.15s; }
+.c3 .check-item:hover { background: #eff6ff; }
+.c3 .check-item input { margin-top: 2px; accent-color: #1e40af; flex-shrink: 0; }
+.c3 .check-item.done { background: #f0fdf4; border-color: #86efac; color: #6b7280; text-decoration: line-through; }
+
+/* ============================================================
+   PHYSICS UNIT 2  — dark theme
+   ============================================================ */
+.p2 {
+  --bg2: #0b0e17; --surface: #111520; --surface2: #181d2e; --border: #1e2540;
+  --accent: #38bdf8; --accent2: #fb923c; --accent3: #a78bfa; --accent4: #34d399;
+  --text: #e2e8f4; --muted: #64748b; --card: #131826;
+  font-family: 'Lato', sans-serif; font-weight: 300; line-height: 1.7; font-size: 18px;
+  background: var(--bg2); color: var(--text);
+}
+.p2 header { position: relative; background: linear-gradient(135deg, #0b0e17 0%, #0f1829 50%, #0b1520 100%); padding: 52px 44px 40px; border-bottom: 1px solid #1e2540; overflow: hidden; }
+.p2 header::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 600px 300px at 80% 50%, rgba(56,189,248,0.06) 0%, transparent 70%); pointer-events: none; }
+.p2 .header-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: #38bdf8; margin-bottom: 14px; }
+.p2 header h1 { font-family: 'Syne', sans-serif; font-size: clamp(30px,6vw,58px); font-weight: 800; line-height: 1.05; color: #fff; margin-bottom: 10px; position: relative; z-index: 1; }
+.p2 header h1 span { color: #38bdf8; }
+.p2 .header-sub { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: rgba(255,255,255,0.35); position: relative; z-index: 1; }
+.p2 .wph-badge { position: absolute; right: 44px; top: 50%; transform: translateY(-50%); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 80px; color: rgba(56,189,248,0.05); letter-spacing: -3px; pointer-events: none; }
+.p2 .exam-bar { background: #181d2e; border-bottom: 1px solid #1e2540; display: flex; flex-wrap: wrap; }
+.p2 .exam-pill { padding: 11px 24px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1px; color: #64748b; border-right: 1px solid #1e2540; }
+.p2 .exam-pill strong { color: #38bdf8; }
+.p2 .section { padding: 44px; background: #0b0e17; }
+.p2 .section-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
+.p2 .section-title::after { content: ''; flex: 1; height: 1px; background: #1e2540; }
+.p2 .planner-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; }
+.p2 .day-card { background: #131826; border: 1px solid #1e2540; border-radius: 8px; padding: 10px 9px; min-height: 84px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.p2 .day-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+.p2 .day-card .dn { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #64748b; margin-bottom: 5px; }
+.p2 .day-card .dt { font-weight: 700; font-size: 14.5px; line-height: 1.3; color: #e2e8f4; }
+.p2 .day-card .ds { font-size: 13px; color: #64748b; margin-top: 3px; }
+.p2 .day-card.waves { border-top: 3px solid #38bdf8; }
+.p2 .day-card.elec { border-top: 3px solid #fb923c; }
+.p2 .day-card.light { border-top: 3px solid #a78bfa; }
+.p2 .day-card.review { border-top: 3px solid #34d399; background: #111d18; }
+.p2 .day-card.rest { background: #111520; }
+.p2 .day-card.exam { background: #38bdf8; border-color: #38bdf8; }
+.p2 .day-card.exam .dn { color: rgba(0,0,0,0.5); }
+.p2 .day-card.exam .dt { color: #000; }
+.p2 .day-card.exam .ds { color: rgba(0,0,0,0.6); }
+.p2 .topic-block { margin-bottom: 14px; border-radius: 10px; border: 1px solid #1e2540; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.p2 .topic-block:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,0,0,0.4); }
+.p2 .topic-header { padding: 14px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; background: #131826; }
+.p2 .topic-header:hover { background: #181d2e; }
+.p2 .t-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; }
+.p2 .t-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; flex: 1; color: #fff; }
+.p2 .t-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.p2 .t-tag { padding: 2px 8px; border-radius: 20px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; background: rgba(255,255,255,0.06); color: #64748b; }
+.p2 .t-arrow { color: #64748b; font-size: 11px; transition: transform 0.2s; }
+.p2 .topic-block.open .t-arrow { transform: rotate(180deg); }
+.p2 .topic-body { display: none; padding: 20px; background: #111520; }
+.p2 .topic-block.open .topic-body { display: block; animation: fadeSlide 0.25s ease forwards; }
+.p2 .point-list { list-style: none; margin-bottom: 14px; }
+.p2 .point-list li { padding: 7px 0 7px 22px; border-bottom: 1px solid #1e2540; font-size: 17px; color: #cbd5e1; position: relative; }
+.p2 .point-list li:last-child { border: none; }
+.p2 .point-list li::before { content: '›'; position: absolute; left: 0; top: 7px; font-family: 'IBM Plex Mono', monospace; color: #64748b; font-size: 14px; }
+.p2 .key-panel { background: white; border: 1px solid #1e2540; border-radius: 8px; padding: 14px 16px; margin-top: 12px; }
+.p2 .kp-title { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; font-weight: 500; }
+.p2 .kp-list { list-style: none; }
+.p2 .kp-list li { font-size: 16px; padding: 3px 0; color: #94a3b8; }
+.p2 .kp-list li::before { content: '◆ '; font-size: 7px; vertical-align: middle; }
+.p2 .formula-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.p2 .formula-chip { padding: 6px 14px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 15.5px; border: 1px solid; background: white; }
+.p2 .cp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.p2 .cp-card { background: #131826; border: 1px solid #1e2540; border-radius: 10px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.p2 .cp-card:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,0,0,0.4); }
+.p2 .cp-header { padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+.p2 .cp-header:hover { background: #181d2e; }
+.p2 .cp-badge { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; padding: 4px 8px; border-radius: 6px; flex-shrink: 0; margin-top: 1px; }
+.p2 .cp-title { font-weight: 700; font-size: 15.5px; flex: 1; line-height: 1.3; color: #e2e8f4; }
+.p2 .cp-arrow { color: #64748b; font-size: 11px; margin-top: 2px; transition: transform 0.2s; }
+.p2 .cp-card.open .cp-arrow { transform: rotate(180deg); }
+.p2 .cp-body { display: none; padding: 0 16px 16px; }
+.p2 .cp-card.open .cp-body { display: block; animation: fadeSlide 0.25s ease forwards; }
+.p2 .cp-steps { list-style: none; counter-reset: s; }
+.p2 .cp-steps li { counter-increment: s; position: relative; padding: 6px 0 6px 30px; font-size: 16.5px; color: #94a3b8; border-bottom: 1px solid #1e2540; }
+.p2 .cp-steps li:last-child { border: none; }
+.p2 .cp-steps li::before { content: counter(s); position: absolute; left: 0; top: 7px; width: 18px; height: 18px; border-radius: 4px; background: rgba(255,255,255,0.07); color: #e2e8f4; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; }
+.p2 .cp-note { margin-top: 10px; padding: 10px 12px; background: rgba(251,146,60,0.07); border-left: 3px solid #fb923c; border-radius: 0 6px 6px 0; font-size: 15.5px; color: #fdba74; }
+.p2 .cp-note-title { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; color: #fb923c; }
+.p2 .eq-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.p2 .eq-card { background: #131826; border: 1px solid #1e2540; border-radius: 8px; padding: 14px; transition: transform 0.2s ease; }
+.p2 .eq-card:hover { transform: translateY(-1px); }
+.p2 .eq-topic { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; color: #64748b; }
+.p2 .eq-formula { font-family: 'IBM Plex Mono', monospace; font-size: 17px; color: #38bdf8; margin-bottom: 4px; font-weight: 500; }
+.p2 .eq-desc { font-size: 15px; color: #64748b; }
+.p2 .cl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.p2 .cl-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; background: #131826; border: 1px solid #1e2540; border-radius: 8px; font-size: 16px; cursor: pointer; color: #94a3b8; transition: background 0.15s; }
+.p2 .cl-item:hover { background: #181d2e; }
+.p2 .cl-item input { margin-top: 2px; accent-color: #38bdf8; flex-shrink: 0; }
+.p2 .cl-item.done { background: rgba(52,211,153,0.05); border-color: rgba(52,211,153,0.25); color: #64748b; text-decoration: line-through; }
+.p2 .tips-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.p2 .tip-card { background: #131826; border: 1px solid #1e2540; border-radius: 10px; padding: 18px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.p2 .tip-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.4); }
+.p2 .tip-icon { font-size: 22px; margin-bottom: 8px; }
+.p2 .tip-card h4 { font-family: 'Syne', sans-serif; font-size: 14px; color: #fff; margin-bottom: 6px; }
+.p2 .tip-card p { font-size: 15.5px; color: #64748b; line-height: 1.6; }
+
+/* ============================================================
+   PHYSICS UNIT 3  — dark purple theme
+   ============================================================ */
+.p3 {
+  font-family: 'Lato', sans-serif; font-weight: 300; line-height: 1.7; font-size: 18px;
+  background: #0d0b17; color: #e2e0f4;
+}
+.p3 header { background: linear-gradient(135deg, #0d0b17 0%, #1a1040 60%, #0f0b20 100%); padding: 52px 44px 40px; position: relative; overflow: hidden; border-bottom: 1px solid #2a1e50; }
+.p3 header::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 600px 300px at 80% 50%, rgba(167,139,250,0.08) 0%, transparent 70%); pointer-events: none; }
+.p3 .header-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: #a78bfa; margin-bottom: 14px; }
+.p3 header h1 { font-family: 'Syne', sans-serif; font-size: clamp(30px,6vw,58px); font-weight: 800; line-height: 1.05; color: #fff; margin-bottom: 10px; position: relative; z-index: 1; }
+.p3 header h1 span { color: #a78bfa; }
+.p3 .header-sub { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: rgba(255,255,255,0.35); position: relative; z-index: 1; }
+.p3 .wph-badge { position: absolute; right: 44px; top: 50%; transform: translateY(-50%); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 80px; color: rgba(167,139,250,0.05); letter-spacing: -3px; pointer-events: none; }
+.p3 .exam-bar { background: #13102a; border-bottom: 1px solid #2a1e50; display: flex; flex-wrap: wrap; }
+.p3 .exam-pill { padding: 11px 24px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1px; color: #6d5fb0; border-right: 1px solid #2a1e50; }
+.p3 .exam-pill strong { color: #a78bfa; }
+.p3 .section { padding: 44px; background: #0d0b17; }
+.p3 .section-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
+.p3 .section-title::after { content: ''; flex: 1; height: 1px; background: #2a1e50; }
+.p3 .intro-card { background: #13102a; border: 1px solid #2a1e50; border-radius: 12px; padding: 24px; margin-bottom: 28px; border-left: 5px solid #a78bfa; }
+.p3 .intro-card p { font-size: 16px; line-height: 1.8; color: #c4b5fd; }
+.p3 .intro-card strong { font-weight: 700; color: #a78bfa; }
+.p3 .skills-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+.p3 .skill-card { background: #13102a; border: 1px solid #2a1e50; border-radius: 8px; padding: 16px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.p3 .skill-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+.p3 .skill-icon { font-size: 20px; margin-bottom: 8px; }
+.p3 .skill-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: #e2e0f4; }
+.p3 .skill-card p { font-size: 13px; color: #6d5fb0; line-height: 1.6; }
+.p3 .cp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.p3 .cp-card { background: #13102a; border: 1px solid #2a1e50; border-radius: 10px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.p3 .cp-card:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,0,0,0.5); }
+.p3 .cp-header { padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+.p3 .cp-header:hover { background: #1a1540; }
+.p3 .cp-badge { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; padding: 4px 8px; border-radius: 6px; flex-shrink: 0; margin-top: 1px; }
+.p3 .cp-title { font-weight: 700; font-size: 15px; flex: 1; line-height: 1.3; color: #e2e0f4; }
+.p3 .cp-arrow { color: #6d5fb0; font-size: 11px; margin-top: 2px; transition: transform 0.2s; }
+.p3 .cp-card.open .cp-arrow { transform: rotate(180deg); }
+.p3 .cp-body { display: none; padding: 0 16px 16px; }
+.p3 .cp-card.open .cp-body { display: block; animation: fadeSlide 0.25s ease forwards; }
+.p3 .cp-steps { list-style: none; counter-reset: s; }
+.p3 .cp-steps li { counter-increment: s; position: relative; padding: 6px 0 6px 30px; font-size: 15px; color: #a09bcc; border-bottom: 1px solid #2a1e50; }
+.p3 .cp-steps li:last-child { border: none; }
+.p3 .cp-steps li::before { content: counter(s); position: absolute; left: 0; top: 7px; width: 18px; height: 18px; border-radius: 4px; background: rgba(167,139,250,0.12); color: #a78bfa; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; }
+.p3 .cp-note { margin-top: 10px; padding: 10px 12px; background: linear-gradient(135deg, #0d0b17 0%, #1a1040 60%, #0f0b20 100%); border-left: 3px solid #a78bfa; border-radius: 0 6px 6px 0; font-size: 15px; color: #c4b5fd; }
+.p3 .cp-note-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; color: #a78bfa; }
+.p3 .error-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.p3 .error-table th { background: #1a1040; color: #a78bfa; padding: 10px 14px; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1px; }
+.p3 .error-table td { padding: 10px 14px; border-bottom: 1px solid #2a1e50; vertical-align: top; color: #a09bcc; }
+.p3 .error-table tr:last-child td { border: none; }
+.p3 .error-table tr:hover td { background: #13102a; }
+.p3 .error-table td:first-child { font-weight: 700; color: #f87171; }
+.p3 .cl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.p3 .cl-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; background: #13102a; border: 1px solid #2a1e50; border-radius: 8px; font-size: 16px; cursor: pointer; color: #a09bcc; transition: background 0.15s; }
+.p3 .cl-item:hover { background: #1a1540; }
+.p3 .cl-item input { margin-top: 2px; accent-color: #a78bfa; flex-shrink: 0; }
+.p3 .cl-item.done { background: rgba(167,139,250,0.05); border-color: rgba(167,139,250,0.25); color: #6d5fb0; text-decoration: line-through; }
+.p3 .tips-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.p3 .tip-card { background: #13102a; border: 1px solid #2a1e50; border-radius: 10px; padding: 18px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.p3 .tip-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.5); }
+.p3 .tip-icon { font-size: 22px; margin-bottom: 8px; }
+.p3 .tip-card h4 { font-family: 'Syne', sans-serif; font-size: 14px; color: #e2e0f4; margin-bottom: 6px; }
+.p3 .tip-card p { font-size: 15px; color: #6d5fb0; line-height: 1.6; }
+
+/* ===================== ANIMATIONS ===================== */
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 700px) {
+  .c2 .planner-grid, .c2 .tips-grid, .c2 .checklist-grid,
+  .c3 .practicals-grid, .c3 .skills-grid, .c3 .ms-grid, .c3 .checklist-grid,
+  .p2 .planner-grid, .p2 .cp-grid, .p2 .eq-grid, .p2 .cl-grid, .p2 .tips-grid,
+  .p3 .cp-grid, .p3 .skills-grid, .p3 .cl-grid, .p3 .tips-grid
+  { grid-template-columns: 1fr !important; }
+  .c2 .section, .c3 .section, .p2 .section, .p3 .section { padding: 20px 16px; }
+  header { padding: 32px 16px 24px !important; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo">IAL <span>Study Hub</span></div>
+  <div class="nav-tabs">
+    <div class="nav-tab phys1 active" onclick="switchTab('phys1')">
+      Physics U1 <span class="nav-badge">WPH11</span>
+    </div>
+    <div class="nav-tab phys2" onclick="switchTab('phys2')">
+      Physics U2 <span class="nav-badge">WPH12</span>
+    </div>
+    <div class="nav-tab phys3" onclick="switchTab('phys3')">
+      Physics U3 <span class="nav-badge">WPH13</span>
+    </div>
+    <div class="nav-tab chem2" onclick="switchTab('chem2')">
+      Chemistry U2 <span class="nav-badge">WCH12</span>
+    </div>
+    <div class="nav-tab chem3" onclick="switchTab('chem3')">
+      Chemistry U3 <span class="nav-badge">WCH13</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== CHEM U2 ==================== -->
+<div id="panel-chem2" class="panel">
+<div class="c2">
+  <header>
+    <div class="header-label">Edexcel IAL Chemistry · WCH12</div>
+    <h1>Unit 2 Study Guide</h1>
+    <div class="header-sub">Energetics, Group Chemistry, Halogenoalkanes & Alcohols · 2-Week Revision Plan</div>
+  </header>
+  <div class="exam-bar">
+    <div class="exam-pill"><strong>Exam:</strong> WCH12</div>
+    <div class="exam-pill"><strong>Duration:</strong> 1 hr 30 min</div>
+    <div class="exam-pill"><strong>Marks:</strong> 80</div>
+    <div class="exam-pill"><strong>Weighting:</strong> 40% IAS</div>
+    <div class="exam-pill"><strong>Topics:</strong> 12</div>
+  </div>
+  <div class="c2 section">
+    <div class="section-title">2-Week Revision Planner</div>
+    <div class="planner-grid" id="c2-planner"></div>
+  </div>
+  <div class="c2 section">
+    <div class="section-title">All 12 Topics — Click to Expand</div>
+    <div id="c2-topics"></div>
+  </div>
+  <div class="c2 section">
+    <div class="section-title">Specification Checklist</div>
+    <div class="checklist-grid" id="c2-checklist"></div>
+  </div>
+  <div class="c2 section" style="padding-bottom:60px">
+    <div class="section-title">Examiner Tips</div>
+    <div class="tips-grid" id="c2-tips"></div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== CHEM U3 ==================== -->
+<div id="panel-chem3" class="panel">
+<div class="c3">
+  <header>
+    <div class="header-label">Edexcel IAL Chemistry · WCH13</div>
+    <h1>Unit 3 Study Guide</h1>
+    <div class="header-sub">Practical Skills in Chemistry I · All Practicals from Units 1 & 2</div>
+  </header>
+  <div class="exam-bar">
+    <div class="exam-pill"><strong>Exam:</strong> WCH13</div>
+    <div class="exam-pill"><strong>Duration:</strong> 1 hr 20 min</div>
+    <div class="exam-pill"><strong>Marks:</strong> 50</div>
+    <div class="exam-pill"><strong>Weighting:</strong> 20% IAS</div>
+    <div class="exam-pill"><strong>Format:</strong> Written only</div>
+  </div>
+  <div class="c3 section">
+    <div class="section-title">What is Unit 3?</div>
+    <div class="intro-card">
+      <p>Unit 3 is a <strong>written practical exam</strong> — no lab work on the day. You answer questions about procedures, data analysis, errors, and experimental design. Draws on practicals from <strong>both Unit 1 and Unit 2</strong>. Know the <em>why</em> behind each step, not just the what.</p>
+    </div>
+    <div class="section-title">Core Practical Skills</div>
+    <div class="skills-grid" id="c3-skills"></div>
+  </div>
+  <div class="c3 section">
+    <div class="section-title">All Required Practicals — Click to Expand</div>
+    <div class="practicals-grid" id="c3-practicals"></div>
+  </div>
+  <div class="c3 section">
+    <div class="section-title">Common Errors & How to Avoid Them</div>
+    <table class="error-table"><thead><tr><th>Error</th><th>Type</th><th>Effect</th><th>Fix</th></tr></thead><tbody id="c3-errors"></tbody></table>
+  </div>
+  <div class="c3 section">
+    <div class="section-title">Mark Scheme Language</div>
+    <div class="ms-grid" id="c3-ms"></div>
+  </div>
+  <div class="c3 section" style="padding-bottom:60px">
+    <div class="section-title">Practical Checklist</div>
+    <div class="checklist-grid" id="c3-checklist"></div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== PHYSICS U2 ==================== -->
+<div id="panel-phys2" class="panel">
+<div class="p2">
+  <header>
+    <div class="header-label">Edexcel IAL Physics · WPH12</div>
+    <h1>Unit 2: <span>Waves &</span><br>Electricity</h1>
+    <div class="header-sub">Waves · Particle Nature of Light · Electric Circuits · 2-Week Revision Plan</div>
+    <div class="wph-badge">WPH12</div>
+  </header>
+  <div class="exam-bar">
+    <div class="exam-pill"><strong>Code:</strong> WPH12/01</div>
+    <div class="exam-pill"><strong>Duration:</strong> 1 hr 30 min</div>
+    <div class="exam-pill"><strong>Marks:</strong> 80</div>
+    <div class="exam-pill"><strong>Weighting:</strong> 40% IAS</div>
+    <div class="exam-pill"><strong>Sec A:</strong> 10 MC · <strong>Sec B:</strong> Long answer</div>
+  </div>
+  <div class="p2 section">
+    <div class="section-title">2-Week Revision Planner</div>
+    <div class="planner-grid" id="p2-planner"></div>
+  </div>
+  <div class="p2 section">
+    <div class="section-title">All Topics — Click to Expand</div>
+    <div id="p2-topics"></div>
+  </div>
+  <div class="p2 section">
+    <div class="section-title">Key Equations</div>
+    <div class="eq-grid" id="p2-equations"></div>
+  </div>
+  <div class="p2 section">
+    <div class="section-title">Core Practicals</div>
+    <div class="cp-grid" id="p2-practicals"></div>
+  </div>
+  <div class="p2 section">
+    <div class="section-title">Specification Checklist</div>
+    <div class="cl-grid" id="p2-checklist"></div>
+  </div>
+  <div class="p2 section" style="padding-bottom:60px">
+    <div class="section-title">Examiner Tips</div>
+    <div class="tips-grid" id="p2-tips"></div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== PHYSICS U3 ==================== -->
+<div id="panel-phys3" class="panel">
+<div class="p3">
+  <header>
+    <div class="header-label">Edexcel IAL Physics · WPH13</div>
+    <h1>Unit 3: <span>Practical</span><br>Skills I</h1>
+    <div class="header-sub">Planning · Data Analysis · Errors & Uncertainties · Conclusions</div>
+    <div class="wph-badge">WPH13</div>
+  </header>
+  <div class="exam-bar">
+    <div class="exam-pill"><strong>Code:</strong> WPH13/01</div>
+    <div class="exam-pill"><strong>Duration:</strong> 1 hr 20 min</div>
+    <div class="exam-pill"><strong>Marks:</strong> 50</div>
+    <div class="exam-pill"><strong>Weighting:</strong> 20% IAS</div>
+    <div class="exam-pill"><strong>Format:</strong> Written practical paper</div>
+  </div>
+  <div class="p3 section">
+    <div class="section-title">What is Unit 3?</div>
+    <div class="intro-card">
+      <p>WPH13 is a <strong>written practical exam</strong> — you don't carry out experiments on the day. Questions test your ability to <strong>plan experiments</strong>, process and present data, identify errors, suggest improvements, and draw conclusions. Contexts may be unfamiliar — it's the <em>skills</em> being assessed, not memorised procedure.</p>
+    </div>
+    <div class="section-title">Assessment Skills Breakdown</div>
+    <div class="skills-grid" id="p3-skills"></div>
+  </div>
+  <div class="p3 section">
+    <div class="section-title">Core Practicals from Units 1 & 2 — Click to Expand</div>
+    <div class="cp-grid" id="p3-practicals"></div>
+  </div>
+  <div class="p3 section">
+    <div class="section-title">Errors, Uncertainties & Definitions</div>
+    <table class="error-table"><thead><tr><th>Term / Error</th><th>Type</th><th>Effect on Result</th><th>How to Handle</th></tr></thead><tbody id="p3-errors"></tbody></table>
+  </div>
+  <div class="p3 section">
+    <div class="section-title">Specification Checklist</div>
+    <div class="cl-grid" id="p3-checklist"></div>
+  </div>
+  <div class="p3 section" style="padding-bottom:60px">
+    <div class="section-title">Examiner Tips</div>
+    <div class="tips-grid" id="p3-tips"></div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== PHYSICS U1 ==================== -->
+<div id="panel-phys1" class="panel active">
+<div class="p2">
+  <header style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);">
+    <div class="header-label" style="color:#6ee7b7">Edexcel IAL Physics · WPH11</div>
+    <h1>Unit 1: <span style="color:#34d399">Mechanics &</span><br>Materials</h1>
+    <div class="header-sub">Mechanics · Materials · Core Practicals · 2-Week Revision Plan</div>
+    <div class="wph-badge" style="background:#34d39920;color:#34d399;border-color:#34d39940">WPH11</div>
+  </header>
+  <div style="background:#0a1f15;display:flex;flex-wrap:wrap;border-bottom:1px solid #1a3a28">
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #1a3a28"><strong style="color:#34d399">Code:</strong> WPH11/01</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #1a3a28"><strong style="color:#34d399">Duration:</strong> 1 hr 30 min</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #1a3a28"><strong style="color:#34d399">Marks:</strong> 80</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #1a3a28"><strong style="color:#34d399">IAS:</strong> 40% &nbsp;·&nbsp; <strong style="color:#34d399">IAL:</strong> 20%</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4"><strong style="color:#34d399">Sec A:</strong> 10 MC &nbsp;·&nbsp; <strong style="color:#34d399">Sec B:</strong> Long answer</div>
+  </div>
+  <div style="padding:28px 32px;background:#0d1520">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#34d399;margin-bottom:20px;letter-spacing:-0.3px;display:flex;align-items:center;gap:12px">All Topics — Click to Expand <span style="flex:1;height:1px;background:#1e2d3d;display:block"></span></div>
+    <div id="p1-topics"></div>
+  </div>
+  <div style="padding:28px 32px;background:#0a1018">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#34d399;margin-bottom:20px;letter-spacing:-0.3px;display:flex;align-items:center;gap:12px">Specification Checklist <span style="flex:1;height:1px;background:#1e2d3d;display:block"></span></div>
+    <div class="cl-grid" id="p1-checklist"></div>
+  </div>
+  <div style="padding:28px 32px 60px;background:#0d1520">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#34d399;margin-bottom:20px;letter-spacing:-0.3px;display:flex;align-items:center;gap:12px">Examiner Tips <span style="flex:1;height:1px;background:#1e2d3d;display:block"></span></div>
+    <div class="tips-grid" id="p1-tips"></div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ====== NAV ====== */
+function switchTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelector('.nav-tab.' + id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ====== HELPERS ====== */
+function buildToggleBlocks(containerId, items, prefix, cls) {
+  const c = document.getElementById(containerId);
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = cls + ' topic-block';
+    div.innerHTML = item.html;
+    div.querySelector('[data-toggle]').addEventListener('click', () => div.classList.toggle('open'));
+    c.appendChild(div);
+  });
+}
+function buildChecklist(containerId, items, storagePrefix, itemCls, inputAccent) {
+  const c = document.getElementById(containerId);
+  items.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = itemCls + ' check-item';
+    let saved = false;
+    try { saved = localStorage.getItem(storagePrefix + i) === '1'; } catch(e){}
+    if(saved) div.classList.add('done');
+    div.innerHTML = `<input type="checkbox" ${saved?'checked':''}/><span>${item}</span>`;
+    div.querySelector('input').addEventListener('change', function() {
+      div.classList.toggle('done', this.checked);
+      try { localStorage.setItem(storagePrefix + i, this.checked?'1':'0'); } catch(e){}
+    });
+    c.appendChild(div);
+  });
+}
+
+/* ================================================================
+   CHEMISTRY UNIT 2 DATA
+   ================================================================ */
+const c2Topics = [
+  { color:'#c0392b', num:1, title:'Halogenoalkanes', tags:['Organic','Mechanisms','~8%'],
+    points:['Nucleophilic substitution — primary halogenoalkanes: SN2 mechanism','Hydrolysis with hot aqueous NaOH to form alcohols','Trend in reactivity: C–I weakest bond, hydrolyses fastest','Use of silver nitrate (AgNO₃/ethanol) to test for halide ions','Environmental concerns: CFCs and ozone depletion','Substitution with NH₃ to form amines (excess ammonia)'],
+    keys:['Bond enthalpy: C–F > C–Cl > C–Br > C–I (strength)','Hydrolysis rate: C–I fastest, C–F slowest','Silver halide precipitates: AgCl white, AgBr cream, AgI yellow'],
+    formulas:['C–X + OH⁻ → C–OH + X⁻']},
+  { color:'#a04000', num:2, title:'Alcohols', tags:['Organic','Reactions','~7%'],
+    points:['Classification: primary, secondary, tertiary','Oxidation: primary → aldehyde → carboxylic acid (K₂Cr₂O₇/H⁺)','Oxidation: secondary → ketone only; tertiary → no oxidation','Dehydration to alkenes using Al₂O₃ or concentrated H₃PO₄','Esterification with carboxylic acids using concentrated H₂SO₄','Reactions with sodium to produce hydrogen gas'],
+    keys:['Orange → green: K₂Cr₂O₇ reduced (positive oxidation)','Warming under reflux → full oxidation to acid; distil → aldehyde','Tertiary alcohols do NOT oxidise with K₂Cr₂O₇'],
+    formulas:['CH₃CH₂OH + [O] → CH₃CHO','CH₃CHO + [O] → CH₃COOH']},
+  { color:'#1a5276', num:3, title:'Intermolecular Forces', tags:['Physical','Bonding','~5%'],
+    points:['van der Waals forces — instantaneous dipoles, all molecules','Permanent dipole–dipole interactions','Hydrogen bonding: N–H···N, O–H···O, F–H···F only','Effect on boiling point: stronger IMF → higher bp','Anomalous properties of water due to hydrogen bonding'],
+    keys:['H-bonds ~10× stronger than van der Waals','More electrons = stronger van der Waals','Water high bp, density anomaly — all from H-bonding'],
+    formulas:[]},
+  { color:'#117a65', num:4, title:'Analytical Techniques', tags:['Practical','Spectroscopy','~6%'],
+    points:['Mass spectrometry: molecular ion peak (M⁺) = relative molecular mass','Fragmentation patterns — m/z = 15 for CH₃⁺, 29 for CHO⁺/C₂H₅⁺','IR spectroscopy: O–H broad ~3200–3550, C=O sharp ~1700–1750','Combining MS and IR to determine structure'],
+    keys:['Base peak = most abundant fragment','IR fingerprint region (< 1500 cm⁻¹) — unique to molecule','M+1 peak: ¹³C isotope contribution'],
+    formulas:['m/z = mass of ion / charge']},
+  { color:'#6c3483', num:5, title:'Energetics', tags:['Physical','Calculations','~12%'],
+    points:['Enthalpy change (ΔH): exothermic (−), endothermic (+)','Calorimetry: q = mcΔT, then ΔH = −q/n','Standard enthalpy of combustion, formation, neutralisation','Hess\'s Law: ΔH is path-independent','Bond enthalpy calculations: ΔH = bonds broken − bonds formed'],
+    keys:['Exothermic: products lower energy than reactants','Neutralisation: ~−57 kJ mol⁻¹ strong acid + strong base','Bond breaking = endothermic; bond forming = exothermic'],
+    formulas:['q = mcΔT','ΔH = Σ(broken) − Σ(formed)','ΔH°rxn = ΔH°f[prod] − ΔH°f[react]']},
+  { color:'#b7770d', num:6, title:'Redox', tags:['Inorganic','Equations','~7%'],
+    points:['Oxidation states: rules and calculation for all elements','OIL RIG: Oxidation Is Loss, Reduction Is Gain','Writing half-equations and balancing redox equations','Disproportionation: same element oxidised and reduced'],
+    keys:['MnO₄⁻ in acid: Mn +7→+2 (purple→colourless)','Cr₂O₇²⁻: Cr +6→+3 (orange→green)','OIL RIG — never forget'],
+    formulas:['Oxidation state sum = overall charge']},
+  { color:'#1e6641', num:7, title:'Groups 1 & 2', tags:['Inorganic','Trends','~8%'],
+    points:['Group 1: reactions with water — vigorous, produce M⁺ + OH⁻ + H₂','Group 2: reactions with water — less vigorous; Ca, Sr, Ba react well','Group 2 hydroxide solubility increases down group; sulfate decreases','Flame colours: Li red, Na yellow, K lilac, Ca brick-red, Sr crimson, Ba green','Thermal decomposition of Group 2 carbonates and nitrates'],
+    keys:['Down Group 2: increasing reactivity','MgSO₄ soluble; BaSO₄ insoluble (barium meal)','Carbonates: easier to decompose higher up the group'],
+    formulas:['2Na + 2H₂O → 2NaOH + H₂','Ca + 2H₂O → Ca(OH)₂ + H₂']},
+  { color:'#c0392b', num:8, title:'Halogens', tags:['Inorganic','Redox','~8%'],
+    points:['Trends: colour, state, boiling point down Group 7','Displacement reactions: Cl₂ displaces Br⁻ and I⁻; Br₂ displaces I⁻ only','Disproportionation of Cl₂ with NaOH: cold dilute vs hot concentrated','Halide tests: AgNO₃ then NH₃ — AgCl white, AgBr cream, AgI yellow'],
+    keys:['Cl₂ + 2NaOH (cold) → NaCl + NaOCl + H₂O (bleach)','Oxidising ability decreases down group','Only Cl₂ and Br₂ are more dense than water (they sink)'],
+    formulas:['Cl₂ + 2Br⁻ → 2Cl⁻ + Br₂','Cl₂ + 2I⁻ → 2Cl⁻ + I₂']},
+  { color:'#117a65', num:9, title:'Titration', tags:['Practical','Calculations','~8%'],
+    points:['Acid-base titrations: choose indicator based on acid/base strength','Methyl orange: strong acid/weak base; phenolphthalein: weak acid/strong base','Calculating concentration from titre volume','Redox titrations: KMnO₄ with Fe²⁺ in acidic solution','Concordant results = within 0.10 cm³'],
+    keys:['n = c × V (V in dm³)','Rinse burette with the solution to be used in it','Rinse conical flask with distilled water only'],
+    formulas:['c = n/V','n = c × V','% purity = (actual/theoretical) × 100']},
+  { color:'#a04000', num:10, title:'Kinetics', tags:['Physical','Graphs','~8%'],
+    points:['Rate = change in concentration / time','Factors: temperature, concentration, surface area, catalyst','Maxwell-Boltzmann: effect of temperature on energy distribution','Activation energy (Ea) — energy required to start reaction','Rate equations: rate = k[A]ᵐ[B]ⁿ — orders from experimental data','Zero, first, second order — rate vs concentration graph shapes'],
+    keys:['10°C rise → ~doubles rate (rough rule)','Order determined experimentally, NOT from equation','At higher T: more particles exceed Ea, peak shifts right'],
+    formulas:['rate = k[A]ᵐ[B]ⁿ','t½ = ln2/k (first order)']},
+  { color:'#6c3483', num:11, title:'Classification of Organic Compounds', tags:['Organic','Nomenclature','~4%'],
+    points:['Functional group identification: all major classes','IUPAC naming rules: longest chain, numbering, substituents','Structural, displayed, skeletal formulae','Isomerism: structural (chain, position, functional group) and stereoisomerism (E/Z, optical)'],
+    keys:['E/Z: different groups on each carbon of C=C','Chiral carbon: 4 different groups attached','Homologous series: same general formula, differ by CH₂'],
+    formulas:[]},
+  { color:'#1a5276', num:12, title:'Equilibria', tags:['Physical','Calculations','~9%'],
+    points:['Dynamic equilibrium: forward and reverse rates equal','Le Chatelier\'s Principle: system shifts to oppose the change','Kc expression: products over reactants, each raised to stoichiometric coefficient','Temperature affects Kc: exothermic — Kc decreases as T increases','Catalyst: no effect on Kc or position — speeds up both directions equally'],
+    keys:['Kc > 1: products favoured; Kc < 1: reactants favoured','Only temperature changes Kc','Pressure increase → side with fewer moles of gas'],
+    formulas:['Kc = [C]ᶜ[D]ᵈ / [A]ᵃ[B]ᵇ']},
+];
+
+const c2PlannerDays = [
+  {n:'Day 1',t:'Halogenoalkanes',s:'Topic 1 + mechanisms'},
+  {n:'Day 2',t:'Alcohols',s:'Topic 2 + oxidation'},
+  {n:'Day 3',t:'IMF + Analytical',s:'Topics 3 & 4'},
+  {n:'Day 4',t:'Energetics',s:'Topic 5 + Hess'},
+  {n:'Day 5',t:'Energetics',s:'Calculations practice'},
+  {n:'Day 6',t:'Past paper Q',s:'Topics 1–5'},
+  {n:'Day 7',t:'Rest / Review',s:'Light review',rest:true},
+  {n:'Day 8',t:'Redox + Gp 1&2',s:'Topics 6 & 7'},
+  {n:'Day 9',t:'Halogens + Titration',s:'Topics 8 & 9'},
+  {n:'Day 10',t:'Kinetics',s:'Topic 10 + graphs'},
+  {n:'Day 11',t:'Equilibria',s:'Topic 12 + Kc'},
+  {n:'Day 12',t:'Classification',s:'Topic 11 + naming'},
+  {n:'Day 13',t:'Full past paper',s:'Timed practice'},
+  {n:'Day 14',t:'EXAM DAY',s:'You\'ve got this!',exam:true},
+];
+
+const c2Checklist = ['Draw nucleophilic substitution mechanism (SN2)','Explain hydrolysis rate trend of halogenoalkanes','Write oxidation products for primary, secondary, tertiary alcohols','Explain hydrogen bonding with a diagram','Identify functional groups from IR spectra','Interpret mass spectrum fragmentation pattern','Use q = mcΔT in calorimetry calculation','Construct a Hess\'s Law cycle using combustion data','Calculate ΔH from bond enthalpies','Assign oxidation states to all elements in a compound','Balance a redox equation using half-equations','State Group 2 solubility trends with explanation','Write displacement reactions of halogens','Perform an acid-base titration calculation','Explain Maxwell-Boltzmann distribution with temperature effect','Determine order of reaction from rate-concentration graph','Write Kc expression for a given equilibrium','Apply Le Chatelier\'s Principle to all three variables','Name organic compounds using IUPAC rules','Identify E/Z and structural isomers'];
+
+const c2Tips = [
+  {icon:'⚗️',title:'Always Show Units',body:'Enthalpy values must have kJ mol⁻¹. Forgetting units or signs (+ / −) costs easy marks every time.'},
+  {icon:'🔁',title:"Hess's Law Cycles",body:'Draw the full cycle. Label all arrows with ΔH values. Never skip steps — examiners want the full working.'},
+  {icon:'🧪',title:'Mechanism Arrows',body:'Curly arrows must start from a bond or lone pair. Nucleophilic substitution is a common 4-marker.'},
+  {icon:'📊',title:'Kinetics Graphs',body:'Rate vs concentration — know the shape for zero, first and second order. Always describe the gradient.'},
+  {icon:'⚖️',title:"Le Chatelier's Principle",body:'State the direction of shift AND explain why. Avoid vague phrases.'},
+  {icon:'🔬',title:'Group 2 Reactions',body:'Know the trend in reactivity down the group. Write ionic equations for reactions with water and acids.'},
+];
+
+/* Chem U3 data */
+const c3Skills = [
+  {icon:'📐',title:'Planning & Design',body:'Identify independent, dependent and control variables. Choose appropriate apparatus. State method with safety precautions.'},
+  {icon:'📊',title:'Data Processing',body:'Calculate means, draw graphs (line of best fit, tangents), identify anomalous results, use correct significant figures.'},
+  {icon:'⚠️',title:'Errors & Uncertainty',body:'Distinguish systematic vs random errors. Calculate % error. Identify apparatus with greatest uncertainty. Suggest improvements.'},
+  {icon:'🔬',title:'Conclusions',body:'Link data to chemical theory. Explain anomalies. State whether hypothesis is supported. Comment on reliability and validity.'},
+  {icon:'🧮',title:'Calculations from Data',body:'Enthalpy from temperature change. Concentration from titration. Rate from graph gradient. Molar mass from MS.'},
+  {icon:'🛡️',title:'Safety & Hazards',body:'Identify hazards (corrosive, flammable, toxic). State precautions. Know COSHH-style risks for reagents used.'},
+];
+
+const c3Practicals = [
+  {num:'P1',title:'Measurement of Molar Volume of a Gas',unit:'Unit 1',color:'#1e40af',steps:['Weigh a known mass of calcium carbonate accurately','Add excess HCl in a flask connected to a gas syringe','Record the volume of CO₂ produced when reaction is complete','Calculate moles of CaCO₃ used; moles of CO₂ = moles of CaCO₃','Calculate molar volume: V = volume ÷ moles; compare to 24 dm³ at RTP'],warn:['Loss of CO₂ before apparatus sealed — keep stopper in!','Chip size affects rate not volume; keep mass constant','Temperature variation affects molar volume'],source:'Key: n = m/M, molar volume = V/n at RTP'},
+  {num:'P2',title:'Enthalpy Change by Calorimetry',unit:'Unit 2',color:'#6c3483',steps:['Measure known volume of solution into polystyrene cup','Record initial temperature for 3 minutes','Add reagent quickly; stir and record every 30 s for 5 min','Plot temperature vs time; extrapolate for ΔT','Calculate q = mcΔT then ΔH = −q/n'],warn:['Use temperature correction graph for heat loss over time','Sign: exothermic = negative; endothermic = positive','Use mass of solution, not total mass'],source:'q = mcΔT; ΔH = −q/n; c(water) = 4.18 J g⁻¹ K⁻¹'},
+  {num:'P3',title:"Hess's Law — Two-Reaction Method",unit:'Unit 2',color:'#6c3483',steps:['Measure ΔH₁: reaction of substance A with acid','Measure ΔH₂: reaction of substance B with same acid','Construct the Hess\'s Law cycle','Calculate ΔH_target = ΔH₁ − ΔH₂'],warn:['Use same volume and concentration of acid each time','Ensure reactions go to completion','Any spill or impurity = systematic error'],source:'Example: ΔHf[MgO] using Mg + HCl and MgO + HCl'},
+  {num:'P4',title:'Acid-Base Titration',unit:'Unit 2',color:'#0f766e',steps:['Rinse burette with solution to be added; fill and remove air bubble','Pipette known volume of other solution into conical flask','Add 2–3 drops indicator','Add from burette dropwise near endpoint; swirl continuously','Repeat until concordant (within 0.10 cm³); calculate mean titre'],warn:['Rinse conical flask with distilled water only','Parallax error — read at bottom of meniscus','Choose correct indicator for acid/base pair'],source:'c = n/V; 1 cm³ = 0.001 dm³'},
+  {num:'P5',title:'Rates of Reaction — Clock/Colorimetry',unit:'Unit 2',color:'#92400e',steps:['Change one variable (concentration, temperature) while keeping others constant','Record time for a fixed colour change or volume of gas','Rate ∝ 1/time (clock reactions)','Plot rate vs concentration to determine order'],warn:['Control temperature carefully — use water bath','Plot 1/t not t — rate increases as t decreases'],source:'Rate vs [X]: zero = horizontal; first = straight line through origin'},
+  {num:'P6',title:'Hydrolysis of Halogenoalkanes',unit:'Unit 2',color:'#991b1b',steps:['Add drops of halogenoalkane to ethanol in a test tube','Add AgNO₃ in ethanol/water','Warm gently in water bath at ~60°C','Observe time for precipitate: C–I fastest, C–Cl slowest','Confirm precipitate with NH₃ solution'],warn:['Use ethanol — halogenoalkanes immiscible with water','Compare all three simultaneously for fairness'],source:'Trend: C–I hydrolyses fastest → precipitate forms first'},
+  {num:'P7',title:'Preparation of Ester (Ethyl Ethanoate)',unit:'Unit 2',color:'#166534',steps:['Add ethanol and ethanoic acid to flask with anti-bumping granules','Add drops of conc. H₂SO₄ as catalyst','Heat under reflux for 10–15 minutes','Distil; wash with NaHCO₃ then water','Dry with anhydrous Na₂SO₄; filter; redistil'],warn:['Reflux prevents loss of volatile reactants','NaHCO₃ wash removes unreacted acid — effervescence normal','Conc H₂SO₄ is corrosive — goggles essential'],source:'Yield is low — esterification is a reversible equilibrium'},
+  {num:'P8',title:'Oxidation of Alcohols',unit:'Unit 2',color:'#92400e',steps:['Add acidified K₂Cr₂O₇ (orange) to alcohol','Primary → aldehyde: heat gently and distil off immediately','Primary → carboxylic acid: heat under reflux','Secondary → ketone: warm with oxidising agent','Tertiary: no colour change'],warn:['Distilling prevents further oxidation to acid','Tertiary alcohols do not oxidise — no colour change'],source:'Orange → green = positive oxidation (Cr³⁺ formed)'},
+  {num:'P9',title:'Qualitative Inorganic Analysis',unit:'Units 1 & 2',color:'#1e40af',steps:['Flame test: nichrome wire + blue Bunsen; note colour','Test for carbonate: add dilute HCl → CO₂ → limewater milky','Test for sulfate: add dilute HCl then BaCl₂ → white ppt (BaSO₄)','Test for halide: add dilute HNO₃ then AgNO₃ → precipitate colour'],warn:['Clean wire between tests with HCl','Acidify before BaCl₂ or AgNO₃ to avoid false positives'],source:'AgCl white (soluble dil NH₃) · AgBr cream · AgI yellow (insoluble NH₃)'},
+  {num:'P10',title:'Rate by Gas Volume Collection',unit:'Unit 1',color:'#0f766e',steps:['Connect flask to gas syringe; add acid to metal/carbonate','Record gas volume every 30 seconds','Plot volume vs time; draw tangent at t=0 for initial rate','Repeat with different concentrations'],warn:['Ensure airtight connection — leaks invalidate results','Capture initial rate immediately after mixing'],source:'Initial rate = gradient of tangent at t=0'},
+];
+
+const c3Errors = [
+  {err:'Heat loss (calorimetry)',type:'Systematic',effect:'ΔT smaller → ΔH underestimated',fix:'Polystyrene cup + lid; temperature correction graph'},
+  {err:'Parallax when reading burette',type:'Random',effect:'Titre volume slightly off',fix:'Read at bottom of meniscus, eye level'},
+  {err:'Air bubble in burette tip',type:'Systematic',effect:'Titre volume overestimated',fix:'Run solution through tip before starting'},
+  {err:'Rinsing flask with solution',type:'Systematic',effect:'More moles → wrong concentration',fix:'Rinse conical flask with distilled water only'},
+  {err:'Gas syringe leak',type:'Systematic',effect:'Volume underestimated → rate appears lower',fix:'Check all joints; petroleum jelly to seal'},
+  {err:'Temperature not controlled (kinetics)',type:'Systematic',effect:'Rate changes unpredictably',fix:'Thermostatically controlled water bath'},
+];
+
+const c3MS = [
+  {title:"When asked to 'explain' a trend",items:['State the trend clearly first','Give the chemical reason','Link to effect on property','Avoid vague phrases like "more reactive because of electrons"']},
+  {title:"When asked about 'sources of error'",items:['Name a specific piece of apparatus','State higher or lower result','Distinguish systematic from random','Suggest a specific, practical improvement']},
+  {title:'Titration calculation steps',items:['State mean titre (reject anomalous)','n = cV (V in dm³)','Apply mole ratio','Calculate concentration with correct units']},
+  {title:'Calorimetry calculation steps',items:['q = mcΔT — state values clearly','Use mass of solution (usually)','ΔH = −q/n — state n clearly','Include sign: − exothermic, + endothermic']},
+];
+
+const c3Checklist = ['Describe temperature correction method for calorimetry','Calculate ΔH from q = mcΔT with correct sign','Describe a titration procedure in full detail','Choose correct indicator for a given acid-base pair','Calculate concentration from titration data step-by-step','Identify the greatest source of error in a titration','Describe how to measure initial rate from a gas volume graph','Explain how temperature affects rate using Maxwell-Boltzmann','Describe hydrolysis of halogenoalkanes practical fully','Explain the trend in hydrolysis rates using bond enthalpies','Describe how to carry out a flame test and identify ions','Perform AgNO₃ test for halide ions (procedure + observations)','Describe preparation of an ester under reflux','Explain purpose of NaHCO₃ wash and drying agent','Describe oxidation of primary alcohol to aldehyde vs acid','Distinguish systematic and random errors with examples','Calculate % uncertainty from apparatus precision','State what concordant results means','Explain why yield in esterification is low','Describe the Hess\'s Law two-reaction method'];
+
+/* Physics U2 data */
+const p2PlannerDays = [
+  {n:'Day 1',t:'Wave Motion',s:'Topic 2.1 — v=fλ, intensity',cls:'waves'},
+  {n:'Day 2',t:'Superposition',s:'Stationary waves, interference',cls:'waves'},
+  {n:'Day 3',t:'Refraction & TIR',s:"Topic 2.3 — Snell's Law",cls:'waves'},
+  {n:'Day 4',t:'Diffraction',s:'Topic 2.4 — d sinθ=nλ',cls:'light'},
+  {n:'Day 5',t:'Photoelectric',s:'Topic 2.5 — hf=φ+½mv²',cls:'light'},
+  {n:'Day 6',t:'Past paper Q',s:'Waves & Light section',cls:'review'},
+  {n:'Day 7',t:'Rest / Review',s:'Light notes review',cls:'rest'},
+  {n:'Day 8',t:'Charge & Current',s:'Topic 2.6 — I=nAve',cls:'elec'},
+  {n:'Day 9',t:'Resistance',s:'Topic 2.7 — resistivity, IV',cls:'elec'},
+  {n:'Day 10',t:'EMF & Power',s:'Topic 2.8 — ε=I(R+r)',cls:'elec'},
+  {n:'Day 11',t:'Potential Dividers',s:"Topic 2.9 + Kirchhoff's",cls:'elec'},
+  {n:'Day 12',t:'Core Practicals',s:'All 5 practicals review',cls:'review'},
+  {n:'Day 13',t:'Full Past Paper',s:'Timed, 80 marks, 90 min',cls:'review'},
+  {n:'Day 14',t:'EXAM DAY',s:'You\'re ready 💪',cls:'exam'},
+];
+
+const p2Topics = [
+  {num:'2.1',title:'Wave Motion',color:'#38bdf8',tags:['Waves','Calculations','~12%'],points:['Progressive waves: transfer energy without transferring matter','Transverse: oscillation perpendicular to travel (EM waves, water)','Longitudinal: oscillation parallel to travel (sound)','Wave equation: v = fλ','Period and frequency: T = 1/f','Intensity: I = P/A; intensity ∝ amplitude²','Inverse square law from point source: I ∝ 1/r²'],keys:['Coherent: same frequency AND constant phase difference','Phase difference = (path diff / λ) × 360°','Intensity ∝ A² — double amplitude → quadruple intensity'],formulas:['v = fλ','T = 1/f','I = P/A','I ∝ 1/r²']},
+  {num:'2.2',title:'Superposition, Interference & Stationary Waves',color:'#38bdf8',tags:['Waves','Diagrams','~10%'],points:['Superposition: resultant displacement = sum of individual displacements','Constructive: path difference = nλ','Destructive: path difference = (n + ½)λ',"Young's double slit: fringe spacing w = λD/d",'Stationary waves: two identical waves travelling in opposite directions','Nodes: zero displacement; antinodes: maximum displacement','Harmonics on string: f₀ = v/2L','Open pipe: all harmonics; closed pipe: odd harmonics only'],keys:['Adjacent nodes are λ/2 apart','Points between two nodes are in phase','Open pipe L = λ/2 fundamental; Closed pipe L = λ/4 fundamental'],formulas:['w = λD/d','f₁ = v/2L (string/open pipe)','f₁ = v/4L (closed pipe)']},
+  {num:'2.3',title:'Refraction, Reflection & Polarisation',color:'#38bdf8',tags:['Waves','Diagrams','~8%'],points:["Snell's Law: n₁ sinθ₁ = n₂ sinθ₂",'Refractive index: n = c/v','TIR: when angle > critical angle, from denser to less dense','Critical angle: sin C = 1/n','Only transverse waves can be polarised','Malus\'s Law: I = I₀ cos²θ'],keys:['TIR requires: (1) denser→less dense, (2) angle > critical angle','Polarisation: oscillation in one plane only','Optical fibres use TIR'],formulas:['n₁sinθ₁ = n₂sinθ₂','n = c/v','sinC = 1/n','I = I₀cos²θ']},
+  {num:'2.4',title:'Diffraction & Gratings',color:'#a78bfa',tags:['Light/Quantum','Practical','~8%'],points:['Maximum diffraction when gap width ≈ wavelength','Diffraction grating: d sinθ = nλ','d = 1/N where N = slits per metre','Maximum order: sinθ ≤ 1, so n ≤ d/λ'],keys:['Larger λ → greater diffraction','Higher order maxima at larger angles','Grating gives sharper, brighter fringes than double slit'],formulas:['d sinθ = nλ','d = 1/N','w = λD/d']},
+  {num:'2.5',title:'Particle Nature of Light & Photoelectric Effect',color:'#a78bfa',tags:['Quantum','Extended writing','~10%'],points:['Photon: E = hf = hc/λ','Threshold frequency f₀: minimum for emission','Work function φ: minimum energy to remove electron; φ = hf₀',"Einstein's equation: hf = φ + ½mv²max",'Stopping potential: eVs = ½mv²max','Intensity → more electrons (not more KE)','Wave model cannot explain threshold or instantaneous emission','de Broglie: λ = h/mv — wave-particle duality'],keys:['One photon → one electron','KE depends only on frequency, not intensity','Wave-particle duality: both show wave AND particle behaviour'],formulas:['E = hf','hf = φ + ½mv²','eVs = ½mv²max','λ = h/mv']},
+  {num:'2.6',title:'Charge, Current & Potential Difference',color:'#fb923c',tags:['Electricity','Definitions','~8%'],points:['Current: I = ΔQ/Δt','Conventional current from + to −; electrons flow opposite','Potential difference: V = W/Q','EMF: energy supplied per unit charge by a source','Drift velocity: I = nAve','Kirchhoff\'s 1st Law: current in = current out at junction','Kirchhoff\'s 2nd Law: sum EMFs = sum p.d.s around closed loop'],keys:['Current: same in series; splits in parallel','PD: splits in series; same in parallel','Drift velocity slow (~mm/s); EM effect at ~c'],formulas:['I = ΔQ/Δt','V = W/Q','I = nAve','Q = It']},
+  {num:'2.7',title:'Resistance, Resistivity & Components',color:'#fb923c',tags:['Electricity','Calculations','~10%'],points:['Ohm\'s Law: V = IR (ohmic, constant temperature)','Resistivity: R = ρL/A','Temperature: metals — R increases; semiconductors (thermistor) — R decreases','Series: R_total = R₁ + R₂','Parallel: 1/R_total = 1/R₁ + 1/R₂','I–V characteristics: ohmic, filament lamp, diode, thermistor, LDR'],keys:['Resistivity is a material property; resistance depends on dimensions','In parallel: total R < smallest individual R','Non-ohmic: R is not constant'],formulas:['R = V/I','R = ρL/A','1/R_p = 1/R₁ + 1/R₂','R_s = R₁ + R₂']},
+  {num:'2.8',title:'EMF, Internal Resistance & Power',color:'#fb923c',tags:['Electricity','Calculations','~10%'],points:['EMF (ε): total energy per coulomb from source','Terminal p.d. = EMF − lost volts: V = ε − Ir','Internal resistance r: opposition within the source','Power: P = IV = I²R = V²/R','Energy: E = IVt','Graph V vs I: y-intercept = EMF; gradient = −r'],keys:['Lost volts = Ir (wasted inside cell)','Terminal p.d. decreases as current increases','Low internal resistance → high current delivery'],formulas:['ε = I(R+r)','V = ε − Ir','P = IV = I²R','E = IVt']},
+  {num:'2.9',title:'Potential Dividers & Sensors',color:'#fb923c',tags:['Electricity','Circuits','~6%'],points:['Vout = Vin × R₂ / (R₁ + R₂)','Thermistor in potential divider: R decreases with T → Vout changes','LDR: R decreases as light increases','Wheatstone bridge: balanced when R₁/R₂ = R₃/R₄'],keys:['Which resistor Vout is taken across — check diagram carefully','Thermistor R↓ → voltage across it↓ in potential divider','Balanced bridge: no current through galvanometer'],formulas:['Vout = Vin × R₂/(R₁+R₂)']},
+];
+
+const p2Equations = [
+  {topic:'WAVES',eq:'v = fλ',desc:'Wave speed'},
+  {topic:'WAVES',eq:'T = 1/f',desc:'Period & frequency'},
+  {topic:'INTENSITY',eq:'I = P/A',desc:'Intensity of wave'},
+  {topic:'INTENSITY',eq:"I ∝ 1/r²",desc:'Inverse square law'},
+  {topic:"YOUNG'S SLITS",eq:'w = λD/d',desc:'Fringe spacing'},
+  {topic:'GRATING',eq:'d sinθ = nλ',desc:'Diffraction grating'},
+  {topic:'REFRACTION',eq:'n₁sinθ₁ = n₂sinθ₂',desc:"Snell's Law"},
+  {topic:'TIR',eq:'sinC = 1/n',desc:'Critical angle'},
+  {topic:'PHOTON',eq:'E = hf = hc/λ',desc:'Photon energy'},
+  {topic:'PHOTOELECTRIC',eq:'hf = φ + ½mv²',desc:"Einstein's equation"},
+  {topic:'DE BROGLIE',eq:'λ = h/mv',desc:'Matter wavelength'},
+  {topic:'CURRENT',eq:'I = ΔQ/Δt',desc:'Definition of current'},
+  {topic:'CURRENT',eq:'I = nAve',desc:'Drift velocity'},
+  {topic:'RESISTANCE',eq:'R = V/I',desc:"Ohm's Law"},
+  {topic:'RESISTIVITY',eq:'R = ρL/A',desc:'Resistance from geometry'},
+  {topic:'POWER',eq:'P = IV = I²R',desc:'Electrical power'},
+  {topic:'EMF',eq:'ε = I(R + r)',desc:'EMF with internal resistance'},
+  {topic:'POT.DIVIDER',eq:'Vout = Vin·R₂/(R₁+R₂)',desc:'Voltage divider'},
+];
+
+const p2Practicals = [
+  {num:'CP7',title:'Superposition of Waves (Ripple Tank / Microwave / Light)',color:'#38bdf8',steps:['Set up two coherent sources (double slit for light, two speakers for sound)','Observe constructive and destructive interference regions','Measure fringe spacing w at distance D from sources','Use w = λD/d to calculate wavelength','Change D or d and observe effect on fringe spacing'],note:'Measuring d (slit separation) incorrectly is the most common error. Use a travelling microscope for accuracy.'},
+  {num:'CP8',title:'Diffraction using Laser & Diffraction Grating',color:'#38bdf8',steps:['Set up laser, grating, and screen at measured distance D','Observe central and first-order maxima on each side','Measure distance x from central to first-order maximum','Calculate θ = arctan(x/D)','Use d sinθ = nλ to find wavelength; record multiple orders'],note:'Safety: never look into the laser. Use at least 3 orders and average. Calculate d = 1/N from grating specification.'},
+  {num:'CP9',title:'Refractive Index of a Glass Block',color:'#38bdf8',steps:['Place block on paper; draw outline; shine ray at an angle','Mark incident and emergent rays; join to find refracted ray inside block','Measure θ₁ and θ₂ from the normal','Calculate n = sinθ₁/sinθ₂ for 5+ angles','Plot sinθ₁ vs sinθ₂ — gradient = n'],note:'Always measure from the NORMAL not the surface. Average n across all angles for best result.'},
+  {num:'CP10',title:'I–V Characteristics of Components',color:'#fb923c',steps:['Connect component in series with ammeter; voltmeter in parallel','Vary voltage using potential divider or variable resistor','Record V and I; plot I–V graph','Ohmic conductor: straight line through origin','Filament lamp: curve (R increases); diode: conducts above ~0.6V'],note:'Reverse connections for diode to show it blocks reverse current. Use small voltage steps near the diode knee.'},
+  {num:'CP11',title:'Resistivity of a Wire',color:'#fb923c',steps:['Measure diameter at 3+ positions with micrometer; calculate A = π(d/2)²','Connect wire in series with ammeter; voltmeter across measured length L','Calculate R = V/I for each length','Plot R vs L — straight line through origin','Gradient = ρ/A; calculate ρ = gradient × A'],note:'Do not let current run too long — wire heats up, changing ρ. Measure L to the voltmeter contacts precisely.'},
+];
+
+const p2Checklist = ['Describe difference between transverse and longitudinal waves','Apply v = fλ in calculations','Explain constructive and destructive interference','Calculate fringe spacing using w = λD/d','Describe and explain stationary wave formation','Identify nodes and antinodes; state distance between them',"Apply Snell's Law to calculate refractive index",'Derive and use critical angle formula sinC = 1/n','Explain total internal reflection with a diagram','Explain why only transverse waves can be polarised','Use d sinθ = nλ for diffraction grating calculations','Explain photoelectric effect using photon model','State why wave model fails to explain photoelectric effect','Use hf = φ + ½mv²max in calculations','Explain wave-particle duality with examples','Apply I = ΔQ/Δt and I = nAve',"Use Kirchhoff's 1st and 2nd Laws in circuit analysis",'Apply R = ρL/A to calculate resistance','Sketch I–V characteristics for resistor, lamp, and diode','Use ε = I(R+r) and interpret V vs I graph for EMF','Calculate output voltage of a potential divider','Explain how a thermistor circuit can sense temperature'];
+
+const p2Tips = [
+  {icon:'〰️',title:'Wave Diagrams',body:'Label λ between two equivalent points. Amplitude = equilibrium to peak, NOT peak to trough.'},
+  {icon:'🔦',title:'Diffraction Gratings',body:'Use d sinθ = nλ. d = 1/N. Always check which order maximum you\'re asked about.'},
+  {icon:'⚡',title:'Internal Resistance',body:'EMF = terminal p.d. + "lost volts". ε = I(R + r). A common 5-marker — know it cold.'},
+  {icon:'🌊',title:'Stationary Waves',body:'Node = zero displacement always. Adjacent nodes = λ/2 apart. Know open and closed pipe harmonics.'},
+  {icon:'💡',title:'Photoelectric Effect',body:'Intensity does NOT increase max KE — only frequency does. One photon ejects one electron. Common extended-writing Q.'},
+  {icon:'📐',title:"Snell's Law",body:'Angles from the normal, NOT the surface. TIR only from denser to less dense medium.'},
+];
+
+/* Physics U3 data */
+const p3Skills = [
+  {icon:'📋',title:'Planning',body:'Identify variables (independent, dependent, control). Choose apparatus. State a clear step-by-step method. Include safety precautions.'},
+  {icon:'📐',title:'Implementing',body:'Comment on whether a student\'s method is appropriate. Identify improvements to technique or apparatus choice.'},
+  {icon:'📊',title:'Recording & Processing',body:'Draw tables with headings and units. Plot graphs with correct scale, labelled axes, best-fit line. Calculate gradient with units.'},
+  {icon:'⚠️',title:'Errors & Uncertainties',body:'Random vs systematic errors. % uncertainty = (absolute uncertainty / mean value) × 100. Identify the dominant source.'},
+  {icon:'📈',title:'Analysis & Conclusions',body:'Use the graph to determine a quantity. Comment on whether data supports a hypothesis. Identify anomalous results.'},
+  {icon:'🔄',title:'Evaluation',body:'Comment on reliability (repeated results), validity (measures what it claims), and suggest specific, testable improvements.'},
+];
+
+const p3Practicals = [
+  {num:'CP1',title:'Determination of g Using a Free-Fall Method',color:'#a78bfa',steps:['Drop steel ball from electromagnet; trigger timer at release','Ball hits trapdoor, stopping the timer','Record time t for different heights h','Plot 2h vs t² — gradient = g','Repeat 5+ times for each height and average'],note:'Reaction time is eliminated by the electronic release. Main error: measuring h to wrong reference point. Use a ruler clamped vertically.'},
+  {num:'CP2',title:'Investigation of Acceleration on an Inclined Plane',color:'#a78bfa',steps:['Set up runway at angle θ; use light gates to measure velocity','Calculate acceleration from v² = u² + 2as or from velocity-time graph','Vary angle θ; record acceleration','Plot a vs sinθ — gradient should equal g','Compare to theoretical value g sinθ'],note:'Compensate for friction by raising one end slightly until trolley moves at constant speed. Ensure light gate separation is measured accurately.'},
+  {num:'CP3',title:'Investigation of the Force-Extension Relationship for Springs',color:'#34d399',steps:['Hang spring from retort stand; add masses in increments','Measure extension for each mass; record in table','Plot force (mg) vs extension — gradient = spring constant k','Identify elastic limit from graph (where line curves)','Repeat with two springs in series and parallel'],note:'Measure extension from the natural length, not from zero. Avoid exceeding the elastic limit — permanent deformation invalidates results.'},
+  {num:'CP4',title:'Determination of Young Modulus of a Metal Wire',color:'#34d399',steps:['Clamp long wire horizontally; attach vernier scale at far end','Measure original length L and diameter d (with micrometer)','Add masses; measure extension using vernier scale','Calculate stress = F/A and strain = e/L','Plot stress vs strain — gradient = Young modulus E'],note:'Use a long wire (>1m) to get measurable extensions. Measure diameter at 3 positions and average. Keep loads below elastic limit.'},
+  {num:'CP5',title:'Superposition of Waves (Stationary Waves on a String)',color:'#38bdf8',steps:['Connect string to vibration generator; pass over pulley with mass hanger','Adjust frequency until clear stationary wave pattern appears','Measure wavelength (distance between nodes × 2)','Use v = fλ to find wave speed','Plot f vs 1/λ — gradient = wave speed'],note:'Measure over multiple loops for better accuracy: e.g., distance across 3 loops = 3λ/2. Ensure string tension is constant throughout.'},
+  {num:'CP6',title:'Investigation of Refraction (Glass Block)',color:'#38bdf8',steps:['Place glass block on paper; draw outline','Shine ray box beam at various angles of incidence','Mark and measure θ₁ and θ₂ from the normal each time','Calculate n = sinθ₁/sinθ₂ for each pair','Plot sinθ₁ vs sinθ₂ — gradient = n'],note:'Measure angles from the NORMAL, not the surface. Use at least 5 different angles. A protractor with degree markings to 1° is sufficient.'},
+  {num:'CP7',title:'Determination of Resistivity of a Wire',color:'#fb923c',steps:['Measure wire diameter at 3+ positions using micrometer; find mean d','Set up circuit: wire in series with ammeter; voltmeter across length L','Vary length and record R = V/I for each L','Plot R vs L — straight line through origin','ρ = gradient × A where A = π(d/2)²'],note:'Keep current low to avoid heating wire (changes ρ). Measure L to the voltmeter connections, not to the ends of the wire.'},
+  {num:'CP8',title:'Calibration of a Thermistor and Temperature Sensing',color:'#fb923c',steps:['Connect thermistor in potential divider circuit','Heat water bath; measure Vout and temperature simultaneously','Record results every 5°C from ~20°C to 80°C','Plot Vout vs temperature — obtain calibration curve','Use calibration curve to determine unknown temperatures'],note:'Stir the water bath constantly for uniform temperature. Allow time for thermistor to equilibrate at each temperature before reading.'},
+];
+
+const p3Errors = [
+  {err:'Random error',type:'Random',effect:'Scatter in data; affects precision',fix:'Repeat measurements and take mean; identify and remove anomalies'},
+  {err:'Systematic error',type:'Systematic',effect:'All readings shifted same direction; affects accuracy',fix:'Re-calibrate equipment; check zero error; use different method to verify'},
+  {err:'Zero error (e.g. micrometer)',type:'Systematic',effect:'All readings too high or too low by fixed amount',fix:'Check and subtract zero error from all readings before use'},
+  {err:'Parallax error',type:'Random/Systematic',effect:'Reading taken from wrong angle',fix:'Always read scale at eye level; use mirror scale where available'},
+  {err:'Reaction time (stopwatch)',type:'Random',effect:'Time measurements too high (human delay)',fix:'Use electronic timing (light gates, data logger) to eliminate'},
+  {err:'Heat loss in energy experiments',type:'Systematic',effect:'ΔT measured is too small; calculated value too low',fix:'Insulate apparatus; use temperature-time graph and extrapolate'},
+  {err:'Heating of wire (resistivity)',type:'Systematic',effect:'Resistance increases; ρ appears larger',fix:'Use low currents; switch off between readings'},
+  {err:'Friction on inclined plane',type:'Systematic',effect:'Measured acceleration lower than expected',fix:'Compensate by tilting plane until constant speed; subtract friction force'},
+];
+
+const p3Checklist = ['State the independent, dependent and control variables for a given experiment','Describe how to minimise a specific source of error','Calculate % uncertainty from apparatus precision','Distinguish between random and systematic errors','Identify and exclude anomalous results from a data set','Draw a best-fit straight line and determine its gradient with units','Calculate a physical quantity from a graph gradient or intercept','Explain what the y-intercept of a results graph represents','State whether results support a hypothesis with reference to data','Suggest a specific, testable improvement to an experiment','Describe how to measure a very small length (e.g. wire diameter)','Explain why repeating measurements reduces random error','Describe how to eliminate reaction time from timing measurements','Calculate the Young modulus from a stress-strain graph','Interpret a V–t or distance–time graph from a free-fall experiment','Explain why a long wire is used in the resistivity practical','Describe how to calibrate a thermistor sensor','State what is meant by the elastic limit','Explain why the free-fall method eliminates reaction time','Evaluate reliability and validity of an experimental method'];
+
+const p3Tips = [
+  {icon:'📏',title:'Be Specific',body:'Never write "use better equipment." Name the exact apparatus and explain why it improves accuracy (e.g. "use a micrometer instead of a ruler — precision ±0.01mm vs ±0.5mm").'},
+  {icon:'📉',title:'Graph Gradient',body:'Always include units with gradient. State the two points used for gradient calculation — they must be on the line, not data points.'},
+  {icon:'🔢',title:'Significant Figures',body:'Match sig figs in your answer to the data given. If data is to 3 s.f., your answer should be too. Losing s.f. marks is avoidable.'},
+  {icon:'⚡',title:'% Uncertainty',body:'% uncertainty = (absolute uncertainty / measured value) × 100. The instrument with the largest % uncertainty dominates.'},
+  {icon:'🎯',title:'Anomalous Results',body:'State that you would exclude the anomalous result and recalculate the mean — but still explain what might have caused it.'},
+  {icon:'🔄',title:'Evaluation Phrase',body:'"The result supports the hypothesis because..." then quote specific numbers. Vague conclusions score zero.'},
+];
+
+/* ================================================================
+   BUILD ALL PANELS
+   ================================================================ */
+
+// CHEM U2 PLANNER
+const c2pg = document.getElementById('c2-planner');
+c2PlannerDays.forEach(d => {
+  const el = document.createElement('div');
+  el.className = 'day-card' + (d.rest?' rest':'') + (d.exam?' exam':'');
+  el.innerHTML = `<div class="dn">${d.n}</div><div class="dt">${d.t}</div><div class="ds">${d.s}</div>`;
+  c2pg.appendChild(el);
+});
+
+// CHEM U2 TOPICS
+const c2tc = document.getElementById('c2-topics');
+c2Topics.forEach(t => {
+  const b = document.createElement('div');
+  b.className = 'topic-block';
+  const tags = t.tags.map(g=>`<span class="tag">${g}</span>`).join('');
+  const pts = t.points.map(p=>`<li>${p}</li>`).join('');
+  const keys = t.keys.map(k=>`<li>${k}</li>`).join('');
+  const fmls = t.formulas.map(f=>`<span class="formula-chip">${f}</span>`).join('');
+  b.innerHTML = `
+    <div class="topic-header" style="background:${t.color}10;border-left:4px solid ${t.color}" data-toggle>
+      <div class="topic-num" style="background:${t.color}">${t.num}</div>
+      <div class="topic-title">${t.title}</div>
+      <div class="topic-tags">${tags}</div>
+      <div class="topic-arrow">▼</div>
+    </div>
+    <div class="topic-body">
+      <ul class="subtopic-list">${pts}</ul>
+      ${t.keys.length?`<div class="key-box" style="border-color:${t.color}"><div class="key-box-title" style="color:${t.color}">Key Points</div><ul>${keys}</ul></div>`:''}
+      ${t.formulas.length?`<div class="formula-row">${fmls}</div>`:''}
+    </div>`;
+  b.querySelector('[data-toggle]').addEventListener('click',()=>b.classList.toggle('open'));
+  c2tc.appendChild(b);
+});
+
+// CHEM U2 CHECKLIST
+buildChecklist('c2-checklist', c2Checklist, 'c2_', '', '');
+
+// CHEM U2 TIPS
+const c2tg = document.getElementById('c2-tips');
+c2Tips.forEach(tip => {
+  const d = document.createElement('div');
+  d.className = 'tip-card';
+  d.innerHTML = `<div class="tip-icon">${tip.icon}</div><h4>${tip.title}</h4><p>${tip.body}</p>`;
+  c2tg.appendChild(d);
+});
+
+// CHEM U3 SKILLS
+const c3sg = document.getElementById('c3-skills');
+c3Skills.forEach(s => {
+  const d = document.createElement('div');
+  d.className = 'skill-card';
+  d.innerHTML = `<div class="skill-icon">${s.icon}</div><h4>${s.title}</h4><p>${s.body}</p>`;
+  c3sg.appendChild(d);
+});
+
+// CHEM U3 PRACTICALS
+const c3pc = document.getElementById('c3-practicals');
+c3Practicals.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'prac-card';
+  const steps = p.steps.map(s=>`<li>${s}</li>`).join('');
+  const warns = p.warn.map(w=>`<li>${w}</li>`).join('');
+  card.innerHTML = `
+    <div class="prac-header" style="border-left:4px solid ${p.color}" data-toggle>
+      <div class="prac-num" style="background:${p.color}">${p.num}</div>
+      <div class="prac-title">${p.title}</div>
+      <span class="prac-unit-tag">${p.unit}</span>
+      <div class="prac-arrow">▼</div>
+    </div>
+    <div class="prac-body">
+      <ol class="step-list">${steps}</ol>
+      <div class="warn-box"><div class="warn-box-title">Watch Out</div><ul>${warns}</ul></div>
+      <div class="source-box"><div class="source-box-title">Key Formula/Fact</div><p>${p.source}</p></div>
+    </div>`;
+  card.querySelector('[data-toggle]').addEventListener('click',()=>card.classList.toggle('open'));
+  c3pc.appendChild(card);
+});
+
+// CHEM U3 ERRORS
+const c3et = document.getElementById('c3-errors');
+c3Errors.forEach(e => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${e.err}</td><td style="color:${e.type==='Systematic'?'#991b1b':'#1e40af'};font-weight:600;font-size:13px">${e.type}</td><td>${e.effect}</td><td style="color:#166534">${e.fix}</td>`;
+  c3et.appendChild(tr);
+});
+
+// CHEM U3 MARK SCHEME
+const c3ms = document.getElementById('c3-ms');
+c3MS.forEach(m => {
+  const d = document.createElement('div');
+  d.className = 'ms-card';
+  const items = m.items.map(i=>`<li>${i}</li>`).join('');
+  d.innerHTML = `<h4>${m.title}</h4><ul>${items}</ul>`;
+  c3ms.appendChild(d);
+});
+
+// CHEM U3 CHECKLIST
+buildChecklist('c3-checklist', c3Checklist, 'c3_', '', '');
+
+// PHYSICS U2 PLANNER
+const p2pg = document.getElementById('p2-planner');
+p2PlannerDays.forEach(d => {
+  const el = document.createElement('div');
+  el.className = 'day-card ' + d.cls;
+  el.innerHTML = `<div class="dn">${d.n}</div><div class="dt">${d.t}</div><div class="ds">${d.s}</div>`;
+  p2pg.appendChild(el);
+});
+
+// PHYSICS U2 TOPICS
+const p2tc = document.getElementById('p2-topics');
+p2Topics.forEach(t => {
+  const b = document.createElement('div');
+  b.className = 'topic-block';
+  const tags = t.tags.map(g=>`<span class="t-tag">${g}</span>`).join('');
+  const pts = t.points.map(p=>`<li>${p}</li>`).join('');
+  const keys = t.keys.map(k=>`<li>${k}</li>`).join('');
+  const fmls = t.formulas.map(f=>`<span class="formula-chip" style="color:${t.color};border-color:${t.color}30">${f}</span>`).join('');
+  b.innerHTML = `
+    <div class="topic-header" data-toggle>
+      <div class="t-num" style="background:${t.color}20;color:${t.color}">${t.num}</div>
+      <div class="t-title">${t.title}</div>
+      <div class="t-tags">${tags}</div>
+      <div class="t-arrow">▼</div>
+    </div>
+    <div class="topic-body">
+      <ul class="point-list">${pts}</ul>
+      <div class="key-panel"><div class="kp-title" style="color:${t.color}">Key Points</div><ul class="kp-list">${keys}</ul></div>
+      ${t.formulas.length?`<div class="formula-strip">${fmls}</div>`:''}
+    </div>`;
+  b.querySelector('[data-toggle]').addEventListener('click',()=>b.classList.toggle('open'));
+  p2tc.appendChild(b);
+});
+
+// PHYSICS U2 EQUATIONS
+const p2eq = document.getElementById('p2-equations');
+p2Equations.forEach(e => {
+  const d = document.createElement('div');
+  d.className = 'eq-card';
+  d.innerHTML = `<div class="eq-topic">${e.topic}</div><div class="eq-formula">${e.eq}</div><div class="eq-desc">${e.desc}</div>`;
+  p2eq.appendChild(d);
+});
+
+// PHYSICS U2 PRACTICALS
+const p2prac = document.getElementById('p2-practicals');
+p2Practicals.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'cp-card';
+  const steps = p.steps.map(s=>`<li>${s}</li>`).join('');
+  card.innerHTML = `
+    <div class="cp-header" style="border-left:4px solid ${p.color}" data-toggle>
+      <span class="cp-badge" style="background:${p.color}20;color:${p.color}">${p.num}</span>
+      <div class="cp-title">${p.title}</div>
+      <div class="cp-arrow">▼</div>
+    </div>
+    <div class="cp-body">
+      <ol class="cp-steps">${steps}</ol>
+      <div class="cp-note"><div class="cp-note-title">Examiner Watch</div>${p.note}</div>
+    </div>`;
+  card.querySelector('[data-toggle]').addEventListener('click',()=>card.classList.toggle('open'));
+  p2prac.appendChild(card);
+});
+
+// PHYSICS U2 CHECKLIST
+buildChecklist('p2-checklist', p2Checklist, 'p2_', '', '');
+
+// PHYSICS U2 TIPS
+const p2tg = document.getElementById('p2-tips');
+p2Tips.forEach(tip => {
+  const d = document.createElement('div');
+  d.className = 'tip-card';
+  d.innerHTML = `<div class="tip-icon">${tip.icon}</div><h4>${tip.title}</h4><p>${tip.body}</p>`;
+  p2tg.appendChild(d);
+});
+
+// PHYSICS U3 SKILLS
+const p3sg = document.getElementById('p3-skills');
+p3Skills.forEach(s => {
+  const d = document.createElement('div');
+  d.className = 'skill-card';
+  d.innerHTML = `<div class="skill-icon">${s.icon}</div><h4>${s.title}</h4><p>${s.body}</p>`;
+  p3sg.appendChild(d);
+});
+
+// PHYSICS U3 PRACTICALS
+const p3prac = document.getElementById('p3-practicals');
+p3Practicals.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'cp-card';
+  const steps = p.steps.map(s=>`<li>${s}</li>`).join('');
+  card.innerHTML = `
+    <div class="cp-header" style="border-left:4px solid ${p.color}" data-toggle>
+      <span class="cp-badge" style="background:${p.color}20;color:${p.color}">${p.num}</span>
+      <div class="cp-title">${p.title}</div>
+      <div class="cp-arrow">▼</div>
+    </div>
+    <div class="cp-body">
+      <ol class="cp-steps">${steps}</ol>
+      <div class="cp-note"><div class="cp-note-title">Examiner Watch</div>${p.note}</div>
+    </div>`;
+  card.querySelector('[data-toggle]').addEventListener('click',()=>card.classList.toggle('open'));
+  p3prac.appendChild(card);
+});
+
+// PHYSICS U3 ERRORS
+const p3et = document.getElementById('p3-errors');
+p3Errors.forEach(e => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${e.err}</td><td style="color:${e.type.includes('Random')?'#a78bfa':'#f87171'};font-weight:600;font-size:13px">${e.type}</td><td>${e.effect}</td><td style="color:#34d399">${e.fix}</td>`;
+  p3et.appendChild(tr);
+});
+
+// PHYSICS U3 CHECKLIST
+buildChecklist('p3-checklist', p3Checklist, 'p3_', '', '');
+
+// PHYSICS U3 TIPS
+const p3tg = document.getElementById('p3-tips');
+p3Tips.forEach(tip => {
+  const d = document.createElement('div');
+  d.className = 'tip-card';
+  d.innerHTML = `<div class="tip-icon">${tip.icon}</div><h4>${tip.title}</h4><p>${tip.body}</p>`;
+  p3tg.appendChild(d);
+});
+
+// ── PHYSICS U1 DATA — WPH11: Mechanics & Materials ONLY ─────────────────────
+const p1Topics = [
+  { num:'1A', title:'Motion — Kinematics', color:'#34d399', tags:['SUVAT','Graphs','Vectors'],
+    points:[
+      'Displacement, velocity and acceleration — definitions and SI units',
+      'Scalar vs vector: distance/displacement, speed/velocity, mass/weight',
+      'Velocity-time graphs: gradient = acceleration, area under = displacement',
+      'Displacement-time graphs: gradient = velocity',
+      'Acceleration-time graphs: area under = change in velocity',
+      'SUVAT equations: v=u+at · s=ut+½at² · v²=u²+2as · s=½(u+v)t',
+      'Free fall: a = g = 9.81 m s⁻² downward, neglecting air resistance',
+      'Resolving vectors into perpendicular components',
+      'Adding vectors by scale drawing or calculation',
+      'Projectile motion: horizontal (constant velocity) and vertical (SUVAT, a=g) are independent',
+      'Terminal velocity — when drag = weight, acceleration = 0',
+    ],
+    formulas:'v = u + at · s = ut + ½at² · v² = u² + 2as · s = ½(u+v)t',
+    tip:'Projectile: horizontal and vertical share ONLY time t. Horizontal: a=0, use s=vt. Vertical: a=9.81 m/s², use SUVAT. Find t from vertical, use it horizontally.'
+  },
+  { num:'1B', title:"Forces & Newton's Laws", color:'#34d399', tags:["Newton's Laws",'Moments','Equilibrium'],
+    points:[
+      "Newton's First Law: body stays at rest or constant velocity unless resultant force acts",
+      "Newton's Second Law: F = ma — resultant force causes acceleration in that direction",
+      "Newton's Third Law: equal and opposite forces act on DIFFERENT objects",
+      'Weight W = mg',
+      'Free body diagrams — show ALL forces acting ON the object only',
+      'Resolving forces: horizontal = F cosθ, vertical = F sinθ',
+      'Equilibrium: ΣF = 0 in all directions',
+      'Moment of a force = F × perpendicular distance from pivot (units: N m)',
+      'Principle of moments: clockwise moments = anticlockwise moments',
+      'Centre of gravity — point where entire weight appears to act',
+      'Conditions for equilibrium: ΣF = 0 AND ΣM = 0',
+      'Conservation of momentum: total p before = total p after (no external forces)',
+      'Momentum p = mv (vector)',
+    ],
+    formulas:'F = ma · W = mg · p = mv · Moment = F × d⊥',
+    tip:"Take moments about the point with the most unknown forces — they produce zero moment and disappear. Much less algebra."
+  },
+  { num:'1C', title:'Work, Energy & Power', color:'#34d399', tags:['Energy','Power','Efficiency'],
+    points:[
+      'Work done W = FΔs cosθ — component of force in direction of motion × displacement',
+      'Work done = area under a force-displacement graph',
+      'Kinetic energy: Eₖ = ½mv²',
+      'Change in gravitational PE: ΔEgrav = mgΔh',
+      'Conservation of energy: energy cannot be created or destroyed',
+      'Work-energy theorem: net work done = change in KE',
+      'Power P = E/t = W/t (rate of energy transfer, units: Watts)',
+      'P = Fv (for constant force)',
+      'Efficiency = useful energy output / total energy input',
+      'Efficiency = useful power output / total power input',
+    ],
+    formulas:'W = FΔs cosθ · Eₖ = ½mv² · ΔEgrav = mgΔh · P = Fv · η = P_out/P_in',
+    tip:'Lost energy in real systems goes to heat/sound due to friction. Efficiency is always less than 1 (or less than 100%).'
+  },
+  { num:'2A', title:"Materials — Density & Hooke's Law", color:'#059669', tags:['Density',"Hooke's Law",'Elasticity'],
+    points:[
+      'Density ρ = m/V (units: kg m⁻³)',
+      "Hooke's Law: F = kΔx — force proportional to extension up to limit of proportionality",
+      'Force-extension graph: gradient = spring constant k (units: N m⁻¹)',
+      'Limit of proportionality — beyond this Hookes Law no longer holds',
+      'Elastic limit — beyond this, permanent deformation occurs',
+      'Elastic deformation: returns to original shape when force removed',
+      'Plastic deformation: permanent change when force removed',
+      'Elastic potential energy = area under F-x graph = ½Fx = ½kx²',
+      'Springs in series: 1/k_total = 1/k₁ + 1/k₂ (same force, extensions add)',
+      'Springs in parallel: k_total = k₁ + k₂ (same extension, forces add)',
+    ],
+    formulas:'ρ = m/V · F = kΔx · EPE = ½kx² = area under F-x graph',
+    tip:"EPE = AREA under F-x graph = ½Fx for a straight line. Don't confuse with W = Fx which assumes constant force throughout."
+  },
+  { num:'2B', title:'Materials — Stress, Strain & Young Modulus', color:'#059669', tags:['Stress','Strain','Young Modulus'],
+    points:[
+      'Tensile stress σ = F/A (Pa) — force per unit cross-sectional area',
+      'Tensile strain ε = ΔL/L (no units) — fractional extension',
+      'Young Modulus E = σ/ε = FL/(AΔL) (Pa) — gradient of stress-strain graph',
+      'Breaking stress / UTS — maximum stress before fracture',
+      'Stiff material: high Young modulus',
+      'Strong material: high breaking/ultimate tensile stress',
+      'Core Practical: determine Young Modulus of a wire under load',
+      'Measure: original length L (tape measure), diameter d (micrometer, multiple readings), extension ΔL (ruler/vernier)',
+      'Cross-sectional area: A = π(d/2)² = πd²/4',
+      'Plot stress vs strain — gradient = Young Modulus E',
+    ],
+    formulas:'σ = F/A · ε = ΔL/L · E = σ/ε = FL/(AΔL)',
+    tip:'Use cross-sectional AREA (A = πr²) not diameter in σ = F/A. Measure diameter at multiple points with a micrometer and average — wires are not perfectly uniform.'
+  },
+  { num:'2C', title:'Materials — Viscosity & Fluid Flow', color:'#059669', tags:['Viscosity','Stokes Law','Terminal velocity'],
+    points:[
+      'Upthrust = weight of fluid displaced (Archimedes principle) = ρ_fluid × V × g',
+      'Object floats when upthrust ≥ weight',
+      'Viscosity η — resistance of fluid to flow (units: Pa s)',
+      "Stokes Law: F = 6πηrv — drag on sphere in viscous fluid",
+      'F = drag (N), η = viscosity (Pa s), r = radius (m), v = speed (m s⁻¹)',
+      'Terminal velocity: weight = drag + upthrust, net force = 0',
+      'At terminal velocity: mg = 6πηrv + ρ_fluid × V × g',
+      'Viscosity of liquids decreases with increasing temperature',
+      'Core Practical: falling ball through fluid to determine viscosity η',
+      'Laminar (streamlined) flow at low speeds; turbulent flow at high speeds',
+    ],
+    formulas:"F = 6πηrv · Upthrust = ρVg · At terminal v: W = 6πηrv + ρ_fluid·V·g",
+    tip:"At terminal velocity write all three forces: weight (down) = Stokes drag (up) + upthrust (up). Rearrange for η. Use radius (NOT diameter) in Stokes Law."
+  },
+];
+
+const p1Checklist = [
+  'All four SUVAT equations from memory',
+  'Interpret v-t graphs: gradient = a, area = s',
+  'Interpret s-t graphs: gradient = v',
+  'Apply SUVAT to free fall (a = 9.81 m/s²)',
+  'Resolve a vector into horizontal and vertical components',
+  'Projectile motion — treat horizontal and vertical independently',
+  "State Newton's three laws correctly",
+  'Draw accurate free body diagrams (forces ON object only)',
+  'Resolve forces in two directions: ΣF = 0 for equilibrium',
+  'Calculate moment = F × perpendicular distance',
+  'Apply principle of moments to beam/rod problems',
+  'Conservation of momentum: m₁u₁ + m₂u₂ = m₁v₁ + m₂v₂',
+  'Work done W = Fd cosθ (angle between force and displacement)',
+  'KE = ½mv² — calculate and compare',
+  'GPE = mgh — use vertical height change',
+  'Apply conservation of energy correctly',
+  'Power P = W/t and P = Fv',
+  'Efficiency = useful output / total input',
+  'Density ρ = m/V',
+  "Hooke's Law F = kΔx — state the limit",
+  'Elastic limit vs limit of proportionality — distinguish',
+  'Elastic vs plastic deformation',
+  'Elastic PE = ½kx² = area under F-x graph',
+  'Tensile stress σ = F/A (cross-sectional area)',
+  'Tensile strain ε = ΔL/L (dimensionless)',
+  'Young Modulus E = σ/ε',
+  'Young Modulus practical: apparatus, graph, sources of error',
+  'Stiff vs strong — definitions using Young modulus and UTS',
+  'Upthrust = ρ_fluid × V × g',
+  "Stokes Law F = 6πηrv — all variables",
+  'Terminal velocity — three forces balance',
+  'Viscosity practical — falling ball, what to measure, how to find η',
+];
+
+const p1Tips = [
+  { icon:'📐', title:'SUVAT — Pick the Right One', body:"Write out all 5 variables: u, v, a, s, t. Identify which 3 you know. Pick the equation that doesn't include the unknown you don't need. Works every time." },
+  { icon:'🎯', title:'Projectile — The Time Link', body:'Horizontal and vertical share ONLY time t. Find t from vertical motion (SUVAT with a=9.81 m/s²), then substitute into horizontal (s = vt, no acceleration).' },
+  { icon:'⚖️', title:'Moments Pivot Trick', body:"Take moments about the point with the most unknown forces — they produce zero moment and vanish. Pick the pivot carefully and you can often solve in one step." },
+  { icon:'🔬', title:'Young Modulus Practical', body:"Plot stress (y-axis) vs strain (x-axis). Gradient = Young Modulus. Measure diameter with a micrometer at multiple points. Use A = πr² not πd²." },
+  { icon:'💧', title:"Stokes Law & Terminal Velocity", body:'At terminal velocity: mg = 6πηrv + ρVg. All three forces in balance — weight downward, drag and upthrust upward. Rearrange to find η. Use radius not diameter.' },
+  { icon:'📊', title:'Stress-Strain vs F-x Graph', body:"Young Modulus comes from gradient of stress-strain graph. Spring constant k comes from gradient of force-extension graph. They are different graphs — don't mix them up." },
+  { icon:'⚡', title:'Energy Conservation', body:'Set up KE + GPE at start = KE + GPE at end + energy lost to friction. If smooth surface, no energy lost. Define zero GPE level clearly before starting.' },
+  { icon:'🏋️', title:'Free Body Diagrams', body:"Only forces ON the object — not forces it exerts on others. On a slope: weight acts vertically downward, normal reaction perpendicular to slope, friction along slope." },
+];
+
+// Build Physics U1 topics
+const p1tg = document.getElementById('p1-topics');
+p1Topics.forEach(t => {
+  const pts = t.points.map(p=>`<li style="color:#c8d6e8;border-bottom:1px solid #1e2d3d;padding:7px 0">🔹 ${p}</li>`).join('');
+  const tagHtml = t.tags.map(tg=>`<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:#1a2a3a;color:#7dd3b8;margin-right:6px;border:1px solid #2a4a3a">${tg}</span>`).join('');
+  const d = document.createElement('div');
+  d.className = 'topic-block';
+  d.style.cssText = `border-left:4px solid ${t.color};border-radius:10px;margin-bottom:12px;overflow:hidden;border:1px solid #1e2d3d;border-left:4px solid ${t.color}`;
+  d.innerHTML = `
+    <div style="padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;background:#0f1923" onclick="this.parentElement.classList.toggle('open')">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#34d399;flex-shrink:0;font-weight:700;background:#0a2a1e;border:1px solid #34d39940">${t.num}</div>
+      <div style="font-size:16px;font-weight:700;flex:1;color:#e2e8f4;font-family:'Syne',sans-serif">${t.title}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${tagHtml}</div>
+      <div style="font-size:11px;color:#4a6a7a;transition:transform 0.2s" class="topic-arrow">▼</div>
+    </div>
+    <div class="topic-body" style="background:#0a1520;color:#c8d6e8;padding:0 20px 20px">
+      <ul style="list-style:none;margin-bottom:16px">${pts}</ul>
+      <div style="background:#0d2a1e;border-left:3px solid ${t.color};padding:10px 14px;border-radius:6px;margin-bottom:10px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#34d399;font-weight:700;margin-bottom:6px;letter-spacing:2px">KEY FORMULAS</div>
+        <div style="font-weight:700;font-size:13px;color:#a7f3d0;font-family:'IBM Plex Mono',monospace">${t.formulas}</div>
+      </div>
+      <div style="background:#1a1500;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:6px;font-size:13px;color:#fcd34d">
+        💡 <strong style="color:#fbbf24">Exam tip:</strong> ${t.tip}
+      </div>
+    </div>`;
+  p1tg.appendChild(d);
+});
+
+// Build Physics U1 checklist — dark themed
+const p1cl = document.getElementById('p1-checklist');
+p1Checklist.forEach((item, i) => {
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-radius:8px;background:#0f1923;border:1px solid #1e2d3d;margin-bottom:6px;cursor:pointer;transition:background 0.15s';
+  let saved = false;
+  try { saved = localStorage.getItem('p1_' + i) === '1'; } catch(e){}
+  if(saved) div.style.background = '#0d2a1e';
+  div.innerHTML = `<input type="checkbox" ${saved?'checked':''} style="margin-top:3px;accent-color:#34d399;width:15px;height:15px;flex-shrink:0"><span style="color:${saved?'#34d399':'#94a3b8'};font-size:14px;line-height:1.5">${item}</span>`;
+  div.querySelector('input').addEventListener('change', function() {
+    try { localStorage.setItem('p1_' + i, this.checked ? '1' : '0'); } catch(e){}
+    div.style.background = this.checked ? '#0d2a1e' : '#0f1923';
+    div.querySelector('span').style.color = this.checked ? '#34d399' : '#94a3b8';
+  });
+  p1cl.appendChild(div);
+});
+
+// Build Physics U1 tips — dark themed
+const p1tpg = document.getElementById('p1-tips');
+p1Tips.forEach(tip => {
+  const d = document.createElement('div');
+  d.style.cssText = 'background:#0f1923;border:1px solid #1e2d3d;border-radius:12px;padding:20px;transition:transform 0.2s,box-shadow 0.2s';
+  d.onmouseenter = () => { d.style.transform='translateY(-2px)'; d.style.boxShadow='0 6px 24px rgba(0,0,0,0.4)'; };
+  d.onmouseleave = () => { d.style.transform=''; d.style.boxShadow=''; };
+  d.innerHTML = `<div style="font-size:24px;margin-bottom:10px">${tip.icon}</div><h4 style="color:#34d399;font-family:'Syne',sans-serif;font-size:14px;margin-bottom:8px">${tip.title}</h4><p style="color:#94a3b8;font-size:13px;line-height:1.6">${tip.body}</p>`;
+  p1tpg.appendChild(d);
+});
+
+</script>
+</body>
+</html>
