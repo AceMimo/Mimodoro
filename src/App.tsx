@@ -1046,6 +1046,14 @@ export default function App() {
     return count;
   }, [allTimeStats.dailyLog]);
 
+  // --- Tab Title Countdown ---
+  useEffect(() => {
+    const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const secs = (timeLeft % 60).toString().padStart(2, '0');
+    const label = mode === 'focus' ? '🍅' : '☕';
+    document.title = isRunning ? `${mins}:${secs} ${label} Mimodoro` : 'Mimodoro';
+  }, [timeLeft, isRunning, mode]);
+
   // --- Timer Logic ---
   const timerExpiredRef = useRef(false);
 

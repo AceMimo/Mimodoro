@@ -364,6 +364,15 @@ body { font-family: 'Lato', sans-serif; font-weight: 300; background: #0d0f14; c
   header { padding: 32px 16px 24px !important; }
 }
 
+
+.nav-tab.phys4.active { background: #1a1a2e; border-color: #f59e0b40; color: #f59e0b; }
+.nav-tab.phys5.active { background: #2a1a2e; border-color: #ec489940; color: #ec4899; }
+.nav-tab.chem4.active { background: #1a2a1a; border-color: #22c55e40; color: #22c55e; }
+.nav-tab.chem5.active { background: #1a2a2a; border-color: #06b6d440; color: #06b6d4; }
+.phys4 .nav-badge { background: #f59e0b20; color: #f59e0b; }
+.phys5 .nav-badge { background: #ec489920; color: #ec4899; }
+.chem4 .nav-badge { background: #22c55e20; color: #22c55e; }
+.chem5 .nav-badge { background: #06b6d420; color: #06b6d4; }
 </style>
 </head>
 <body>
@@ -386,6 +395,18 @@ body { font-family: 'Lato', sans-serif; font-weight: 300; background: #0d0f14; c
     </div>
     <div class="nav-tab chem3" onclick="switchTab('chem3')">
       Chemistry U3 <span class="nav-badge">WCH13</span>
+    </div>
+    <div class="nav-tab phys4" onclick="switchTab('phys4')">
+      Physics U4 <span class="nav-badge">WPH14</span>
+    </div>
+    <div class="nav-tab phys5" onclick="switchTab('phys5')">
+      Physics U5 <span class="nav-badge">WPH15</span>
+    </div>
+    <div class="nav-tab chem4" onclick="switchTab('chem4')">
+      Chemistry U4 <span class="nav-badge">WCH14</span>
+    </div>
+    <div class="nav-tab chem5" onclick="switchTab('chem5')">
+      Chemistry U5 <span class="nav-badge">WCH15</span>
     </div>
   </div>
 </nav>
@@ -579,6 +600,111 @@ body { font-family: 'Lato', sans-serif; font-weight: 300; background: #0d0f14; c
   <div style="padding:28px 32px 60px;background:#0d1520">
     <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#34d399;margin-bottom:20px;letter-spacing:-0.3px;display:flex;align-items:center;gap:12px">Examiner Tips <span style="flex:1;height:1px;background:#1e2d3d;display:block"></span></div>
     <div class="tips-grid" id="p1-tips"></div>
+  </div>
+</div>
+</div>
+
+
+<!-- ==================== PHYSICS U4 ==================== -->
+<div id="panel-phys4" class="panel">
+<div class="p2">
+  <header style="background: linear-gradient(135deg, #1a1205 0%, #2d1f08 100%);">
+    <div class="header-label" style="color:#fcd34d">Edexcel IAL Physics · WPH14</div>
+    <h1>Unit 4: <span style="color:#f59e0b">Further</span><br>Mechanics, Fields & Particles</h1>
+    <div class="header-sub">Further Mechanics · Electric & Magnetic Fields · Nuclear Physics · 2-Week Revision Plan</div>
+    <div class="wph-badge" style="background:#f59e0b20;color:#f59e0b;border-color:#f59e0b40">WPH14</div>
+  </header>
+  <div style="background:#1a1205;display:flex;flex-wrap:wrap;border-bottom:1px solid #3a2e10">
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #3a2e10"><strong style="color:#f59e0b">Code:</strong> WPH14/01</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #3a2e10"><strong style="color:#f59e0b">Duration:</strong> 1 hr 45 min</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #3a2e10"><strong style="color:#f59e0b">Marks:</strong> 90</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4"><strong style="color:#f59e0b">IAL only:</strong> 40%</div>
+  </div>
+  <div style="padding:28px 32px;background:#0d1520">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#f59e0b;margin-bottom:20px;letter-spacing:-0.3px;display:flex;align-items:center;gap:12px">All Topics — Click to Expand <span style="flex:1;height:1px;background:#2d2510;display:block"></span></div>
+    <div id="p4-topics"></div>
+  </div>
+  <div style="padding:28px 32px;background:#0a1018">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#f59e0b;margin-bottom:20px;letter-spacing:-0.3px;display:flex;align-items:center;gap:12px">Examiner Tips <span style="flex:1;height:1px;background:#2d2510;display:block"></span></div>
+    <div class="tips-grid" id="p4-tips"></div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== PHYSICS U5 ==================== -->
+<div id="panel-phys5" class="panel">
+<div class="p2">
+  <header style="background: linear-gradient(135deg, #1a0520 0%, #2d0a38 100%);">
+    <div class="header-label" style="color:#f9a8d4">Edexcel IAL Physics · WPH15</div>
+    <h1>Unit 5: <span style="color:#ec4899">Thermodynamics,</span><br>Radiation & Oscillations</h1>
+    <div class="header-sub">Thermal Physics · Radiation · Oscillations & Waves · Astrophysics · 2-Week Revision Plan</div>
+    <div class="wph-badge" style="background:#ec489920;color:#ec4899;border-color:#ec489940">WPH15</div>
+  </header>
+  <div style="background:#1a0520;display:flex;flex-wrap:wrap;border-bottom:1px solid #3a1050">
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #3a1050"><strong style="color:#ec4899">Code:</strong> WPH15/01</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #3a1050"><strong style="color:#ec4899">Duration:</strong> 1 hr 45 min</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4;border-right:1px solid #3a1050"><strong style="color:#ec4899">Marks:</strong> 90</div>
+    <div style="padding:10px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:#e2e8f4"><strong style="color:#ec4899">IAL only:</strong> 40%</div>
+  </div>
+  <div style="padding:28px 32px;background:#0d1520">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#ec4899;margin-bottom:20px;letter-spacing:-0.3px;display:flex;align-items:center;gap:12px">All Topics — Click to Expand <span style="flex:1;height:1px;background:#2d0a38;display:block"></span></div>
+    <div id="p5-topics"></div>
+  </div>
+  <div style="padding:28px 32px;background:#0a1018">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#ec4899;margin-bottom:20px;letter-spacing:-0.3px;display:flex;align-items:center;gap:12px">Examiner Tips <span style="flex:1;height:1px;background:#2d0a38;display:block"></span></div>
+    <div class="tips-grid" id="p5-tips"></div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== CHEM U4 ==================== -->
+<div id="panel-chem4" class="panel">
+<div class="c2">
+  <header style="background: linear-gradient(135deg, #052010 0%, #0a3020 100%);">
+    <div class="header-label" style="color:#86efac">Edexcel IAL Chemistry · WCH14</div>
+    <h1 style="color:#f0fdf4">Unit 4: <span style="color:#22c55e">Rates, Equilibria</span><br>& Further Organic</h1>
+    <div class="header-sub" style="color:rgba(240,253,244,0.6)">Kinetics · Equilibria · Acid-Base · Further Organic Chemistry · 2-Week Revision Plan</div>
+    <div style="margin-top:16px;display:inline-block;padding:6px 16px;border-radius:6px;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;background:#22c55e20;color:#22c55e;border:1px solid #22c55e40">WCH14</div>
+  </header>
+  <div class="exam-bar" style="background:#22c55e;">
+    <div class="exam-pill"><strong>Exam:</strong> WCH14</div>
+    <div class="exam-pill"><strong>Duration:</strong> 1 hr 45 min</div>
+    <div class="exam-pill"><strong>Marks:</strong> 90</div>
+    <div class="exam-pill"><strong>IAL only:</strong> 40%</div>
+  </div>
+  <div class="section">
+    <div class="section-title">All Topics — Click to Expand</div>
+    <div id="c4-topics"></div>
+  </div>
+  <div class="section" style="background:#f5f0e8">
+    <div class="section-title">Examiner Tips</div>
+    <div class="tips-grid" id="c4-tips"></div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== CHEM U5 ==================== -->
+<div id="panel-chem5" class="panel">
+<div class="c2">
+  <header style="background: linear-gradient(135deg, #051a2a 0%, #0a2a3a 100%);">
+    <div class="header-label" style="color:#67e8f9">Edexcel IAL Chemistry · WCH15</div>
+    <h1 style="color:#f0f9ff">Unit 5: <span style="color:#06b6d4">Transition Metals</span><br>& Organic Nitrogen</h1>
+    <div class="header-sub" style="color:rgba(240,249,255,0.6)">Transition Metal Chemistry · Organic Nitrogen · Polymers · Synoptic · 2-Week Revision Plan</div>
+    <div style="margin-top:16px;display:inline-block;padding:6px 16px;border-radius:6px;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;background:#06b6d420;color:#06b6d4;border:1px solid #06b6d440">WCH15</div>
+  </header>
+  <div class="exam-bar" style="background:#06b6d4;">
+    <div class="exam-pill"><strong>Exam:</strong> WCH15</div>
+    <div class="exam-pill"><strong>Duration:</strong> 1 hr 45 min</div>
+    <div class="exam-pill"><strong>Marks:</strong> 90</div>
+    <div class="exam-pill"><strong>IAL only:</strong> 40%</div>
+  </div>
+  <div class="section">
+    <div class="section-title">All Topics — Click to Expand</div>
+    <div id="c5-topics"></div>
+  </div>
+  <div class="section" style="background:#f0f9ff">
+    <div class="section-title">Examiner Tips</div>
+    <div class="tips-grid" id="c5-tips"></div>
   </div>
 </div>
 </div>
@@ -1289,6 +1415,118 @@ p1Tips.forEach(tip => {
   d.innerHTML = `<div style="font-size:24px;margin-bottom:10px">${tip.icon}</div><h4 style="color:#34d399;font-family:'Syne',sans-serif;font-size:14px;margin-bottom:8px">${tip.title}</h4><p style="color:#94a3b8;font-size:13px;line-height:1.6">${tip.body}</p>`;
   p1tpg.appendChild(d);
 });
+
+
+/* ====== PHYSICS U4 DATA ====== */
+const p4Topics = [
+  { html: `<div data-toggle class="topic-header" style="background:#0d1520;border-bottom:1px solid #2d2510"><div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#000;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0">1</div><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;flex:1;color:#f5f0e8">Further Mechanics</div><div style="font-size:11px;color:#a0855a">Momentum · Circular Motion · SHM</div><span style="color:#f59e0b;font-size:12px">▼</span></div><div class="topic-body" style="background:#111827;padding:16px 20px;border-top:1px solid #2d2510"><ul style="color:#d1c8b8;font-size:14px;line-height:2;list-style:none;padding:0"><li>• Impulse and momentum: J = FΔt = Δp</li><li>• Conservation of momentum in collisions (elastic &amp; inelastic)</li><li>• Coefficient of restitution: e = relative speed after / relative speed before</li><li>• Circular motion: a = v²/r = ω²r, F = mv²/r</li><li>• Angular velocity ω = 2πf = 2π/T</li><li>• SHM: a = −ω²x, x = A cos(ωt), v = −Aω sin(ωt)</li><li>• Energy in SHM: E_total = ½mω²A²</li><li>• Damping: light, heavy, critical — resonance at natural frequency</li></ul></div>` },
+  { html: `<div data-toggle class="topic-header" style="background:#0d1520;border-bottom:1px solid #2d2510"><div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#000;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0">2</div><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;flex:1;color:#f5f0e8">Electric &amp; Magnetic Fields</div><div style="font-size:11px;color:#a0855a">Coulomb · Capacitors · Faraday</div><span style="color:#f59e0b;font-size:12px">▼</span></div><div class="topic-body" style="background:#111827;padding:16px 20px;border-top:1px solid #2d2510"><ul style="color:#d1c8b8;font-size:14px;line-height:2;list-style:none;padding:0"><li>• Coulomb's law: F = kQ₁Q₂/r²</li><li>• Electric field: E = F/Q = kQ/r² (point charge), E = V/d (uniform field)</li><li>• Electric potential: V = kQ/r</li><li>• Capacitance: C = Q/V, energy E = ½CV² = ½QV = Q²/2C</li><li>• Capacitor discharge: Q = Q₀e^(−t/RC), time constant τ = RC</li><li>• Magnetic flux density: F = BIl sinθ, F = BQv sinθ</li><li>• Magnetic flux: Φ = BA cosθ</li><li>• Faraday's law: ε = −NΔΦ/Δt; Lenz's law</li><li>• Transformers: Vs/Vp = Ns/Np</li></ul></div>` },
+  { html: `<div data-toggle class="topic-header" style="background:#0d1520;border-bottom:1px solid #2d2510"><div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#000;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0">3</div><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;flex:1;color:#f5f0e8">Nuclear &amp; Particle Physics</div><div style="font-size:11px;color:#a0855a">Radioactivity · Fission · Quarks</div><span style="color:#f59e0b;font-size:12px">▼</span></div><div class="topic-body" style="background:#111827;padding:16px 20px;border-top:1px solid #2d2510"><ul style="color:#d1c8b8;font-size:14px;line-height:2;list-style:none;padding:0"><li>• Radioactive decay: A = λN, N = N₀e^(−λt), t½ = ln2/λ</li><li>• Alpha, beta, gamma — properties, ionisation, penetration</li><li>• Nuclear binding energy: ΔE = Δmc²</li><li>• Mass defect and binding energy per nucleon curves</li><li>• Fission and fusion — energy release comparison</li><li>• Quarks: up (u), down (d), strange (s) — baryons, mesons, leptons</li><li>• Conservation laws: charge, baryon number, lepton number</li><li>• The Standard Model overview — four fundamental forces</li></ul></div>` },
+];
+
+const p4Tips = [
+  {icon:'⚠️',title:'SHM Sign Convention',body:'In a = −ω²x the negative sign is the definition of SHM — it means acceleration always opposes displacement. Never drop the negative.'},
+  {icon:'🔋',title:'Capacitor Graphs',body:'Q vs t is exponential decay — never a straight line. Sketch the curve reaching 0 asymptotically, and mark t = RC where Q = Q₀/e ≈ 0.37Q₀.'},
+  {icon:'🧲',title:'Lenz's Law Direction',body:'Use the right-hand rule then apply Lenz's law to oppose the change. Induced current creates a field that opposes the flux change causing it.'},
+  {icon:'⚛️',title:'Binding Energy Curve',body:'Iron-56 is at the peak — most stable. Fission of heavy nuclei and fusion of light nuclei both move toward iron and release energy.'},
+  {icon:'🔄',title:'Circular Motion',body:'Centripetal force is always directed inward. It does no work (perpendicular to velocity) so speed is constant even though direction changes.'},
+  {icon:'📐',title:'Quark Charges',body:'Up quark = +⅔e, Down quark = −⅓e. Proton = uud = +1e. Neutron = udd = 0. These come up in particle physics questions.'},
+];
+
+/* ====== PHYSICS U5 DATA ====== */
+const p5Topics = [
+  { html: `<div data-toggle class="topic-header" style="background:#0d1520;border-bottom:1px solid #2d0a38"><div style="width:28px;height:28px;border-radius:50%;background:#ec4899;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0">1</div><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;flex:1;color:#f5f0e8">Thermal Physics</div><div style="font-size:11px;color:#a060a0">Ideal Gas · Kinetic Theory · Thermodynamics</div><span style="color:#ec4899;font-size:12px">▼</span></div><div class="topic-body" style="background:#111827;padding:16px 20px;border-top:1px solid #2d0a38"><ul style="color:#d1c8b8;font-size:14px;line-height:2;list-style:none;padding:0"><li>• Ideal gas law: pV = nRT = NkT</li><li>• Kinetic theory: pV = ⅓Nm&lt;c²&gt;</li><li>• RMS speed: c_rms = √(3RT/M) = √(3kT/m)</li><li>• Internal energy U = (3/2)NkT for monatomic ideal gas</li><li>• First law of thermodynamics: ΔU = Q + W</li><li>• Isothermal, adiabatic, isobaric, isochoric processes</li><li>• Entropy: ΔS = Q/T (reversible); entropy always increases</li></ul></div>` },
+  { html: `<div data-toggle class="topic-header" style="background:#0d1520;border-bottom:1px solid #2d0a38"><div style="width:28px;height:28px;border-radius:50%;background:#ec4899;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0">2</div><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;flex:1;color:#f5f0e8">Nuclear Radiation &amp; Imaging</div><div style="font-size:11px;color:#a060a0">X-rays · PET · Ultrasound · MRI</div><span style="color:#ec4899;font-size:12px">▼</span></div><div class="topic-body" style="background:#111827;padding:16px 20px;border-top:1px solid #2d0a38"><ul style="color:#d1c8b8;font-size:14px;line-height:2;list-style:none;padding:0"><li>• X-ray attenuation: I = I₀e^(−μx), half-value thickness = ln2/μ</li><li>• CT scanning — multiple X-ray angles, computational reconstruction</li><li>• PET scan — annihilation produces two 511 keV γ photons at 180°</li><li>• Ultrasound: Z = ρc, reflection coefficient = (Z₂−Z₁)²/(Z₂+Z₁)²</li><li>• MRI — proton precession in magnetic field, RF pulse, relaxation signals</li><li>• Photoelectric effect: hf = φ + ½mv²_max; Einstein's equation</li><li>• de Broglie wavelength: λ = h/p = h/mv</li></ul></div>` },
+  { html: `<div data-toggle class="topic-header" style="background:#0d1520;border-bottom:1px solid #2d0a38"><div style="width:28px;height:28px;border-radius:50%;background:#ec4899;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0">3</div><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;flex:1;color:#f5f0e8">Oscillations &amp; Astrophysics</div><div style="font-size:11px;color:#a060a0">Waves · Doppler · HR Diagram · Cosmology</div><span style="color:#ec4899;font-size:12px">▼</span></div><div class="topic-body" style="background:#111827;padding:16px 20px;border-top:1px solid #2d0a38"><ul style="color:#d1c8b8;font-size:14px;line-height:2;list-style:none;padding:0"><li>• Doppler effect: f_obs = f_s(v±v_o)/(v∓v_s)</li><li>• Redshift: z = Δλ/λ ≈ v/c for v ≪ c</li><li>• Hubble's law: v = H₀d; age of universe ≈ 1/H₀</li><li>• HR Diagram — main sequence, giants, white dwarfs, supergiants</li><li>• Stefan–Boltzmann law: L = 4πr²σT⁴</li><li>• Wien's law: λ_max T = 2.898 × 10⁻³ m K</li><li>• Chandrasekhar limit, neutron stars, black holes</li><li>• Dark matter and dark energy evidence</li></ul></div>` },
+];
+
+const p5Tips = [
+  {icon:'🌡️',title:'First Law Signs',body:'ΔU = Q + W (Edexcel convention). W is work done ON the gas. In an expansion the gas does work so W is negative here. Don't mix up conventions.'},
+  {icon:'📡',title:'Doppler Redshift',body:'For recession z = v/c only works when v ≪ c. For cosmological redshift use the relativistic formula. The exam always states which to use.'},
+  {icon:'⭐',title:'HR Diagram Axes',body:'Temperature increases RIGHT TO LEFT on the x-axis. Don't let this catch you out — hotter stars are on the left, cooler on the right.'},
+  {icon:'🔬',title:'MRI vs CT',body:'MRI uses magnetic fields and RF pulses (no ionising radiation), gives best soft-tissue contrast. CT uses X-rays — better for bone and dense tissue.'},
+  {icon:'💡',title:'Photoelectric Threshold',body:'Below threshold frequency, no electrons are emitted regardless of intensity. Intensity only affects the number of electrons, not their max KE.'},
+  {icon:'🌌',title:'Hubble Constant Units',body:'H₀ is in km s⁻¹ Mpc⁻¹ in the data booklet. Convert to s⁻¹ when calculating age of universe: 1 Mpc = 3.09 × 10²² m.'},
+];
+
+/* ====== CHEMISTRY U4 DATA ====== */
+const c4Topics = [
+  { html: `<div data-toggle class="topic-header"><div class="topic-num" style="background:#22c55e">1</div><div class="topic-title">Kinetics</div><div class="topic-tags"><span class="tag">Rate Equations</span><span class="tag">Arrhenius</span><span class="tag">Mechanisms</span></div><span class="topic-arrow">▼</span></div><div class="topic-body"><ul class="subtopic-list" style="font-size:14px;line-height:2;padding:0;list-style:none"><li>• Rate = k[A]^m[B]^n — orders determined experimentally, never from equation</li><li>• Initial rates method and half-life method (first order)</li><li>• Arrhenius equation: k = Ae^(−Ea/RT); ln k = ln A − Ea/RT</li><li>• Graph of ln k vs 1/T: gradient = −Ea/R</li><li>• Rate-determining step — the slowest step in a mechanism</li><li>• Catalysts lower activation energy; appear in rate equation if in RDS</li><li>• Homogeneous vs heterogeneous catalysis</li></ul></div>` },
+  { html: `<div data-toggle class="topic-header"><div class="topic-num" style="background:#22c55e">2</div><div class="topic-title">Equilibria</div><div class="topic-tags"><span class="tag">Kc / Kp</span><span class="tag">Le Chatelier</span><span class="tag">Acid-Base</span></div><span class="topic-arrow">▼</span></div><div class="topic-body"><ul class="subtopic-list" style="font-size:14px;line-height:2;padding:0;list-style:none"><li>• Kc and Kp expressions — only gaseous/aqueous species included</li><li>• Kp = Kc(RT)^Δn where Δn = moles gas products − moles gas reactants</li><li>• Effect of T, P, concentration on equilibrium position (not Kc unless T changes)</li><li>• Brønsted–Lowry acid-base theory — conjugate pairs</li><li>• Ka and pKa: pH = pKa + log([A⁻]/[HA]) (Henderson–Hasselbalch)</li><li>• Buffer solutions — resisting pH change; blood buffer: H₂CO₃/HCO₃⁻</li><li>• Kw = [H⁺][OH⁻] = 1×10⁻¹⁴ mol² dm⁻⁶ at 25°C</li></ul></div>` },
+  { html: `<div data-toggle class="topic-header"><div class="topic-num" style="background:#22c55e">3</div><div class="topic-title">Further Organic Chemistry</div><div class="topic-tags"><span class="tag">Carbonyls</span><span class="tag">Carboxylic Acids</span><span class="tag">Amines</span></div><span class="topic-arrow">▼</span></div><div class="topic-body"><ul class="subtopic-list" style="font-size:14px;line-height:2;padding:0;list-style:none"><li>• Aldehydes vs ketones — Tollens', Fehling's, oxidation tests</li><li>• Nucleophilic addition to carbonyls: HCN, NaBH₄ reduction</li><li>• Carboxylic acids: reactions with Na, NaOH, carbonates, alcohols (esterification)</li><li>• Acyl chlorides — very reactive, react with H₂O, alcohols, amines</li><li>• Primary, secondary, tertiary amines — basicity, reaction with HCl, acyl chlorides</li><li>• Amino acids — zwitterions, isoelectric point, peptide bonds</li><li>• NMR: chemical shift, splitting pattern, integration — identify structure</li></ul></div>` },
+];
+
+const c4Tips = [
+  {icon:'📊',title:'Rate Orders from Graphs',body:'Constant half-life = first order. If rate doubles when [A] doubles = first order in A. If rate quadruples = second order. Always justify from data.'},
+  {icon:'⚖️',title:'Kc vs Kp',body:'Kc uses mol dm⁻³, Kp uses partial pressures. Changing pressure shifts equilibrium but does NOT change Kc or Kp. Only temperature changes K values.'},
+  {icon:'🧪',title:'Buffer Calculation',body:'pH = pKa + log([salt]/[acid]). The log term must be negative for pH < pKa. Sketch the dissociation curve — buffer works best within ±1 pH unit of pKa.'},
+  {icon:'🔬',title:'Tollens vs Fehling',body:'Both distinguish aldehyde from ketone. Tollens = silver mirror. Fehling = brick-red precipitate. Both oxidise aldehydes but NOT ketones.'},
+  {icon:'⚗️',title:'Acyl Chloride Reactions',body:'Acyl chlorides react more vigorously than carboxylic acids — fume in air (HCl gas). They react with water, alcohols, and amines without a catalyst.'},
+];
+
+/* ====== CHEMISTRY U5 DATA ====== */
+const c5Topics = [
+  { html: `<div data-toggle class="topic-header"><div class="topic-num" style="background:#06b6d4">1</div><div class="topic-title">Transition Metal Chemistry</div><div class="topic-tags"><span class="tag">Complex Ions</span><span class="tag">Colour</span><span class="tag">Redox</span></div><span class="topic-arrow">▼</span></div><div class="topic-body"><ul class="subtopic-list" style="font-size:14px;line-height:2;padding:0;list-style:none"><li>• Transition metals: d-block elements with incomplete d-subshell in ≥1 oxidation state</li><li>• Variable oxidation states — write as Roman numerals e.g. Fe(II), Fe(III)</li><li>• Complex ion: central metal ion + ligands (lone pair donors)</li><li>• Common ligands: H₂O, NH₃, Cl⁻, CN⁻, EDTA⁴⁻ (hexadentate)</li><li>• Coordination numbers: 6 (octahedral), 4 (tetrahedral or square planar)</li><li>• d-d transitions cause colour — complementary colour to absorbed wavelength</li><li>• Ligand substitution: [Cu(H₂O)₆]²⁺ + 4NH₃ → [Cu(NH₃)₄(H₂O)₂]²⁺ + 4H₂O</li><li>• Electrode potentials, E°cell = E°cathode − E°anode</li></ul></div>` },
+  { html: `<div data-toggle class="topic-header"><div class="topic-num" style="background:#06b6d4">2</div><div class="topic-title">Organic Nitrogen &amp; Polymers</div><div class="topic-tags"><span class="tag">Amines</span><span class="tag">Azo Dyes</span><span class="tag">Condensation Polymers</span></div><span class="topic-arrow">▼</span></div><div class="topic-body"><ul class="subtopic-list" style="font-size:14px;line-height:2;padding:0;list-style:none"><li>• Diazonium salts: ArNH₂ + HNO₂ + HCl → ArN₂⁺Cl⁻ (below 5°C)</li><li>• Azo coupling: ArN₂⁺ + phenol/amine → azo dye (−N=N− chromophore)</li><li>• Addition polymers: poly(ethene), poly(propene) — no by-product</li><li>• Condensation polymers: polyesters (−COOH + −OH), polyamides (−COOH + −NH₂)</li><li>• Kevlar, nylon-6,6 — structures and repeat units</li><li>• Biodegradability: condensation polymers more biodegradable than addition</li><li>• Amino acids → polypeptides via peptide bond (amide linkage)</li></ul></div>` },
+  { html: `<div data-toggle class="topic-header"><div class="topic-num" style="background:#06b6d4">3</div><div class="topic-title">Synoptic &amp; Analysis</div><div class="topic-tags"><span class="tag">NMR</span><span class="tag">Chromatography</span><span class="tag">Synthesis</span></div><span class="topic-arrow">▼</span></div><div class="topic-body"><ul class="subtopic-list" style="font-size:14px;line-height:2;padding:0;list-style:none"><li>• ¹H NMR: δ (ppm) chemical shift, TMS reference at 0 ppm</li><li>• Splitting: n+1 rule — doublet, triplet, quartet from neighbouring H atoms</li><li>• ¹³C NMR: one peak per unique carbon environment, no splitting</li><li>• Mass spectrometry: M⁺ = molecular ion peak; fragmentation patterns</li><li>• Gas chromatography: Rf values, identification by retention time</li><li>• Multi-step synthesis: plan backward from target, identify reagents for each step</li><li>• Green chemistry principles: atom economy, percentage yield, E-factor</li></ul></div>` },
+];
+
+const c5Tips = [
+  {icon:'🎨',title:'Colour & Absorbed Light',body:'The colour you see is COMPLEMENTARY to what's absorbed. [Cu(H₂O)₆]²⁺ absorbs red light → appears blue. Use the colour wheel.'},
+  {icon:'🔗',title:'Ligand Substitution',body:'NH₃ displaces H₂O because NH₃ is a stronger ligand. EDTA displaces all 6 water molecules — entropy drives this (chelate effect).'},
+  {icon:'❄️',title:'Diazonium Temperature',body:'Diazotisation must be below 5°C — diazonium salts decompose at higher temperatures. In exams, always state "below 5°C" for marks.'},
+  {icon:'🔄',title:'Polymer Linkages',body:'Polyester has −COO− ester links. Polyamide has −CONH− amide links. Nylon-6,6 forms between a diamine and a dicarboxylic acid — both have 6 carbons.'},
+  {icon:'📈',title:'E°cell Spontaneity',body:'E°cell > 0 means reaction is feasible. But feasibility doesn't guarantee a fast reaction — kinetics may prevent it (high activation energy).'},
+];
+
+/* ====== RENDER ALL NEW TABS ====== */
+
+
+function buildPhysTopics(containerId, items, accentColor) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.style.cssText = 'margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid #2d2d3d';
+    div.innerHTML = item.html;
+    div.querySelector('[data-toggle]').addEventListener('click', () => div.classList.toggle('open'));
+    div.querySelector('.topic-body') && Object.assign(div.querySelector('.topic-body').style, {display:'none'});
+    div.addEventListener('click', e => {
+      if (e.target.closest('[data-toggle]')) {
+        const body = div.querySelector('.topic-body');
+        if (body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+    c.appendChild(div);
+  });
+}
+
+function buildChemTopics(containerId, items) {
+  buildToggleBlocks(containerId, items, 'c', 'c2 topic-block');
+}
+
+buildPhysTopics('p4-topics', p4Topics, '#f59e0b');
+buildPhysTopics('p5-topics', p5Topics, '#ec4899');
+buildChemTopics('c4-topics', c4Topics);
+buildChemTopics('c5-topics', c5Topics);
+</script>
+<script>
+function buildTipsGrid(containerId, items) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  items.forEach(tip => {
+    const d = document.createElement('div');
+    d.className = 'tip-card';
+    d.innerHTML = `<div class="tip-icon">${tip.icon}</div><h4>${tip.title}</h4><p>${tip.body}</p>`;
+    c.appendChild(d);
+  });
+}
+
+// Render tip grids for additional panels
+buildTipsGrid('p4-tips', p4Tips);
+buildTipsGrid('p5-tips', p5Tips);
+buildTipsGrid('c4-tips', c4Tips);
+buildTipsGrid('c5-tips', c5Tips);
 
 </script>
 </body>
