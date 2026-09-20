@@ -1052,7 +1052,6 @@ export default function App() {
     const secs = (timeLeft % 60).toString().padStart(2, '0');
     const label = mode === 'focus' ? '🍅' : '☕';
     document.title = isRunning ? `${mins}:${secs} ${label} Mimodoro` : 'Mimodoro';
-    timerChannel.current?.postMessage({ timeLeft, isRunning, mode, accentColor });
   }, [timeLeft, isRunning, mode, accentColor]);
 
 
@@ -1184,20 +1183,6 @@ export default function App() {
     setTotalTime(mins * 60);
   };
 
-  const openPopout = () => {
-    if (popoutRef.current && !popoutRef.current.closed) {
-      popoutRef.current.focus();
-      return;
-    }
-    const w = 280, h = 320;
-    const win = window.open(
-      '/popout.html',
-      'mimodoro-popout',
-      'width=' + w + ',height=' + h + ',left=' + (screen.width - w - 24) + ',top=24,resizable=no,toolbar=no,menubar=no,scrollbars=no'
-    );
-    popoutRef.current = win;
-  };
-
   const skipBreak = () => {
     setShowBreakOverlay(false);
     pauseTimer();
@@ -1207,21 +1192,6 @@ export default function App() {
     setTotalTime(nextTime);
   };
 
-  // --- BroadcastChannel for popout ---
-  const timerCmdRef = useRef<{ toggle: () => void; reset: () => void; skip: () => void } | null>(null);
-  useEffect(() => {
-    timerCmdRef.current = { toggle: toggleTimer, reset: resetTimer, skip: onTimerEnd };
-  });
-  useEffect(() => {
-    const ch = new BroadcastChannel('mimodoro-timer');
-    timerChannel.current = ch;
-    ch.onmessage = (e) => {
-      if (e.data?.cmd === 'toggle') timerCmdRef.current?.toggle();
-      if (e.data?.cmd === 'reset')  timerCmdRef.current?.reset();
-      if (e.data?.cmd === 'skip')   timerCmdRef.current?.skip();
-    };
-    return () => ch.close();
-  }, []);
 
   // --- Music Logic ---
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2062,7 +2032,6 @@ export default function App() {
             {/* Controls */}
             <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-2.5'}`}>
               <button onClick={resetTimer} className={`flex items-center justify-center rounded-full glass-card text-white/70 hover:text-white transition-all ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}><RotateCcw size={isMobile ? 14 : 16} /></button>
-              <button onClick={openPopout} title="Pop out timer" className={`flex items-center justify-center rounded-full glass-card text-white/70 hover:text-white transition-all ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}><Maximize2 size={isMobile ? 14 : 16} /></button>
               <button onClick={() => setMode(mode)} className={`flex items-center justify-center rounded-full glass-card text-white/70 hover:text-white transition-all ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}><SkipBack size={isMobile ? 14 : 16} /></button>
               <button 
                 onClick={toggleTimer} 

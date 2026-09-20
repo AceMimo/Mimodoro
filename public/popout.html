@@ -14,21 +14,19 @@
     height: 100vh;
     font-family: system-ui, sans-serif;
     user-select: none;
-    overflow: hidden;
   }
   #mode {
     font-size: 10px;
     letter-spacing: 4px;
     color: rgba(255,255,255,0.35);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     text-transform: uppercase;
   }
   #time {
-    font-size: 80px;
+    font-size: 76px;
     font-weight: 700;
     color: #fff;
     letter-spacing: -3px;
-    line-height: 1;
     font-variant-numeric: tabular-nums;
   }
   #status {
@@ -37,12 +35,11 @@
     color: rgba(255,255,255,0.3);
     margin-top: 10px;
     text-transform: uppercase;
-    height: 14px;
   }
   .controls {
     display: flex;
     gap: 14px;
-    margin-top: 32px;
+    margin-top: 28px;
     align-items: center;
   }
   button {
@@ -53,22 +50,19 @@
     align-items: center;
     justify-content: center;
     background: rgba(255,255,255,0.07);
-    transition: opacity .15s, background .15s;
+    transition: background .15s;
   }
   button:hover { background: rgba(255,255,255,0.14); }
-  .btn-sm { width: 38px; height: 38px; }
-  #btn-play {
-    width: 56px;
-    height: 56px;
-    background: #7c6fff;
-  }
-  #btn-play:hover { opacity: .85; }
+  .btn-sm { width: 40px; height: 40px; }
+  #btn-play { width: 56px; height: 56px; background: #7c6fff; }
+  #btn-play:hover { filter: brightness(1.15); background: #7c6fff; }
 </style>
 </head>
 <body>
   <div id="mode">Focus</div>
   <div id="time">25:00</div>
   <div id="status">READY</div>
+
   <div class="controls">
     <button class="btn-sm" id="btn-reset" title="Reset">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2">
@@ -76,10 +70,17 @@
         <path d="M3 3v5h5"/>
       </svg>
     </button>
-    <button id="btn-play" title="Play/Pause">
-      <svg id="icon-play" width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
-      <svg id="icon-pause" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+
+    <button id="btn-play" title="Play / Pause">
+      <svg id="icon-play" width="22" height="22" viewBox="0 0 24 24" fill="white">
+        <polygon points="5,3 19,12 5,21"/>
+      </svg>
+      <svg id="icon-pause" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none">
+        <rect x="6" y="4" width="4" height="16"/>
+        <rect x="14" y="4" width="4" height="16"/>
+      </svg>
     </button>
+
     <button class="btn-sm" id="btn-skip" title="Skip">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2">
         <polygon points="5,4 15,12 5,20"/>
@@ -91,33 +92,27 @@
   <script>
     const ch = new BroadcastChannel('mimodoro-timer');
 
-    const elTime   = document.getElementById('time');
-    const elMode   = document.getElementById('mode');
-    const elStatus = document.getElementById('status');
-    const btnPlay  = document.getElementById('btn-play');
-    const iconPlay  = document.getElementById('icon-play');
-    const iconPause = document.getElementById('icon-pause');
+    function pad(n) { return String(n).padStart(2, '0'); }
 
-    function pad(n) { return n.toString().padStart(2, '0'); }
+    ch.onmessage = function(e) {
+      const { timeLeft, isRunning, mode, accentColor } = e.data;
+      const m = Math.floor(timeLeft / 60);
+      const s = timeLeft % 60;
+      const t = pad(m) + ':' + pad(s);
 
-    function update(data) {
-      const m = Math.floor(data.timeLeft / 60);
-      const s = data.timeLeft % 60;
-      elTime.textContent = pad(m) + ':' + pad(s);
-      document.title = pad(m) + ':' + pad(s) + ' Mimodoro';
-      elMode.textContent = data.mode === 'focus' ? 'Focus' : data.mode === 'short' ? 'Short Break' : 'Long Break';
-      elStatus.textContent = data.isRunning ? 'RUNNING' : 'PAUSED';
-      btnPlay.style.background = data.accentColor || '#7c6fff';
-      iconPlay.style.display  = data.isRunning ? 'none'  : 'block';
-      iconPause.style.display = data.isRunning ? 'block' : 'none';
-    }
+      document.getElementById('time').textContent = t;
+      document.title = t + ' Mimodoro';
+      document.getElementById('mode').textContent =
+        mode === 'focus' ? 'Focus' : mode === 'short' ? 'Short Break' : 'Long Break';
+      document.getElementById('status').textContent = isRunning ? 'RUNNING' : 'PAUSED';
+      document.getElementById('btn-play').style.background = accentColor || '#7c6fff';
+      document.getElementById('icon-play').style.display  = isRunning ? 'none'  : 'block';
+      document.getElementById('icon-pause').style.display = isRunning ? 'block' : 'none';
+    };
 
-    ch.onmessage = (e) => update(e.data);
-
-    // Buttons post back to main window
-    document.getElementById('btn-reset').onclick = () => ch.postMessage({ cmd: 'reset' });
-    document.getElementById('btn-play').onclick  = () => ch.postMessage({ cmd: 'toggle' });
-    document.getElementById('btn-skip').onclick  = () => ch.postMessage({ cmd: 'skip' });
+    document.getElementById('btn-reset').onclick = function() { ch.postMessage({ cmd: 'reset' }); };
+    document.getElementById('btn-play').onclick  = function() { ch.postMessage({ cmd: 'toggle' }); };
+    document.getElementById('btn-skip').onclick  = function() { ch.postMessage({ cmd: 'skip' }); };
   </script>
 </body>
 </html>
