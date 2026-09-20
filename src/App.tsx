@@ -1046,30 +1046,28 @@ export default function App() {
     return count;
   }, [allTimeStats.dailyLog]);
 
+  // --- BroadcastChannel setup ---
+  useEffect(() => {
+    const ch = new BroadcastChannel('mimodoro-timer');
+    timerChannel.current = ch;
+    ch.onmessage = (e) => {
+      if (e.data?.cmd === 'toggle') toggleTimer();
+      if (e.data?.cmd === 'reset')  resetTimer();
+      if (e.data?.cmd === 'skip')   onTimerEnd();
+    };
+    return () => ch.close();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // --- Tab Title Countdown + Popout Sync ---
   useEffect(() => {
     const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
     const secs = (timeLeft % 60).toString().padStart(2, '0');
     const label = mode === 'focus' ? '🍅' : '☕';
     document.title = isRunning ? `${mins}:${secs} ${label} Mimodoro` : 'Mimodoro';
-    // Sync popout if open
-    if (popoutChannelRef.current) {
-      popoutChannelRef.current.postMessage({ timeLeft, isRunning, mode, accentColor });
-    }
   }, [timeLeft, isRunning, mode, accentColor]);
 
-  // Listen for popout button commands — use a ref to avoid stale closures
-  const popoutHandlersRef = useRef({ toggleTimer, resetTimer, onTimerEnd });
-  useEffect(() => { popoutHandlersRef.current = { toggleTimer, resetTimer, onTimerEnd }; });
-  useEffect(() => {
-    const handler = (e: MessageEvent) => {
-      if (e.data?.type === 'timer-toggle') popoutHandlersRef.current.toggleTimer();
-      if (e.data?.type === 'timer-reset') popoutHandlersRef.current.resetTimer();
-      if (e.data?.type === 'timer-skip') popoutHandlersRef.current.onTimerEnd();
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
-  }, []);
+
 
   // --- Timer Logic ---
   const timerExpiredRef = useRef(false);
@@ -1203,55 +1201,13 @@ export default function App() {
       popoutRef.current.focus();
       return;
     }
-    const w = 300, h = 340;
-    const popup = window.open('', 'mimodoro-timer',
-      'width=' + w + ',height=' + h + ',left=' + (window.screen.width - w - 20) + ',top=20,resizable=no,toolbar=no,menubar=no,scrollbars=no'
+    const w = 280, h = 320;
+    const win = window.open(
+      '/popout.html',
+      'mimodoro-popout',
+      'width=' + w + ',height=' + h + ',left=' + (screen.width - w - 24) + ',top=24,resizable=no,toolbar=no,menubar=no,scrollbars=no'
     );
-    if (!popup) return;
-    popoutRef.current = popup;
-
-    const channel = new BroadcastChannel('mimodoro-timer');
-    popoutChannelRef.current = channel;
-
-    const render = (tl: number, running: boolean, md: string, accent: string) => {
-      if (!popup || popup.closed) return;
-      const mm = Math.floor(tl / 60).toString().padStart(2, '0');
-      const ss = (tl % 60).toString().padStart(2, '0');
-      const label = md === 'focus' ? 'FOCUSING' : md === 'short' ? 'SHORT BREAK' : 'LONG BREAK';
-      const playIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>';
-      const pauseIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
-      const html = [
-        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + mm + ':' + ss + ' Mimodoro</title>',
-        '<style>',
-        '* { margin:0; padding:0; box-sizing:border-box; }',
-        'body { background:#0d1117; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:system-ui,sans-serif; user-select:none; }',
-        '.time { font-size:72px; font-weight:700; color:#fff; letter-spacing:-2px; line-height:1; }',
-        '.label { font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-top:10px; }',
-        '.controls { display:flex; gap:12px; margin-top:28px; align-items:center; }',
-        'button { border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }',
-        'button:hover { opacity:0.75; }',
-        '.btn-sec { width:40px; height:40px; background:rgba(255,255,255,0.08); }',
-        '.btn-main { width:54px; height:54px; background:' + accent + '; }',
-        '</style></head><body>',
-        '<div class="time">' + mm + ':' + ss + '</div>',
-        '<div class="label">' + (running ? label : 'PAUSED') + '</div>',
-        '<div class="controls">',
-        '<button class="btn-sec" onclick="window.opener.postMessage({type:'timer-reset'},'*')">',
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
-        '</button>',
-        '<button class="btn-main" onclick="window.opener.postMessage({type:'timer-toggle'},'*')">' + (running ? pauseIcon : playIcon) + '</button>',
-        '<button class="btn-sec" onclick="window.opener.postMessage({type:'timer-skip'},'*')">',
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><polygon points="5,4 15,12 5,20"/><line x1="19" y1="5" x2="19" y2="19"/></svg>',
-        '</button>',
-        '</div></body></html>'
-      ].join('');
-      popup.document.open();
-      popup.document.write(html);
-      popup.document.close();
-    };
-
-    render(timeLeft, isRunning, mode, accentColor);
-    channel.onmessage = (e) => render(e.data.timeLeft, e.data.isRunning, e.data.mode, e.data.accentColor);
+    popoutRef.current = win;
   };
 
   const skipBreak = () => {
