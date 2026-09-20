@@ -1046,28 +1046,13 @@ export default function App() {
     return count;
   }, [allTimeStats.dailyLog]);
 
-  // --- Tab Title Countdown + Popout Sync ---
+  // --- Tab Title Countdown ---
   useEffect(() => {
     const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
     const secs = (timeLeft % 60).toString().padStart(2, '0');
     const label = mode === 'focus' ? '🍅' : '☕';
     document.title = isRunning ? `${mins}:${secs} ${label} Mimodoro` : 'Mimodoro';
-    // Sync popout if open
-    if (popoutChannelRef.current) {
-      popoutChannelRef.current.postMessage({ timeLeft, isRunning, mode, accentColor });
-    }
-  }, [timeLeft, isRunning, mode, accentColor]);
-
-  // Listen for popout button commands
-  useEffect(() => {
-    const handler = (e: MessageEvent) => {
-      if (e.data?.type === 'timer-toggle') toggleTimer();
-      if (e.data?.type === 'timer-reset') resetTimer();
-      if (e.data?.type === 'timer-skip') onTimerEnd();
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
-  }, [toggleTimer, resetTimer, onTimerEnd]);
+  }, [timeLeft, isRunning, mode]);
 
   // --- Timer Logic ---
   const timerExpiredRef = useRef(false);
@@ -1194,71 +1179,6 @@ export default function App() {
     const mins = mode === 'focus' ? config.focus : mode === 'short' ? config.short : config.long;
     setTimeLeft(mins * 60);
     setTotalTime(mins * 60);
-  };
-
-  const openPopout = () => {
-    // If already open, focus it
-    if (popoutRef.current && !popoutRef.current.closed) {
-      popoutRef.current.focus();
-      return;
-    }
-
-    const w = 300, h = 340;
-    const left = window.screen.width - w - 20;
-    const top = 20;
-    const popup = window.open('', 'mimodoro-timer', `width=${w},height=${h},left=${left},top=${top},resizable=no,toolbar=no,menubar=no,scrollbars=no`);
-    if (!popup) return;
-    popoutRef.current = popup;
-
-    const channel = new BroadcastChannel('mimodoro-timer');
-    popoutChannelRef.current = channel;
-
-    const render = (tl: number, running: boolean, md: string, accent: string) => {
-      if (!popup || popup.closed) return;
-      const m = Math.floor(tl / 60).toString().padStart(2, '0');
-      const s = (tl % 60).toString().padStart(2, '0');
-      const label = md === 'focus' ? 'FOCUSING' : md === 'short' ? 'SHORT BREAK' : 'LONG BREAK';
-      popup.document.open();
-      popup.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${m}:${s} Mimodoro</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#0d1117; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:'DM Sans',sans-serif; user-select:none; }
-  .time { font-size:72px; font-weight:700; color:#fff; letter-spacing:-2px; line-height:1; }
-  .label { font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.5); margin-top:10px; }
-  .ring { margin-bottom:16px; }
-  .controls { display:flex; gap:12px; margin-top:24px; }
-  button { width:40px; height:40px; border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:opacity .15s; }
-  button:hover { opacity:.8; }
-  .btn-main { width:52px; height:52px; background:${accent}; }
-  .btn-sec { background:rgba(255,255,255,0.08); }
-  svg { display:block; }
-</style></head><body>
-<div class="time">${m}:${s}</div>
-<div class="label">${running ? label : 'PAUSED'}</div>
-<div class="controls">
-  <button class="btn-sec" onclick="window.opener.postMessage({type:'timer-reset'},'*')" title="Reset">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-  </button>
-  <button class="btn-main" onclick="window.opener.postMessage({type:'timer-toggle'},'*')" title="${running ? 'Pause' : 'Play'}">
-    ${running
-      ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`
-      : `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>`}
-  </button>
-  <button class="btn-sec" onclick="window.opener.postMessage({type:'timer-skip'},'*')" title="Skip">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><polygon points="5,4 15,12 5,20"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
-  </button>
-</div>
-</body></html>`);
-      popup.document.close();
-    };
-
-    render(timeLeft, isRunning, mode, accentColor);
-
-    // Sync via BroadcastChannel
-    channel.onmessage = (e) => {
-      render(e.data.timeLeft, e.data.isRunning, e.data.mode, e.data.accentColor);
-    };
   };
 
   const skipBreak = () => {
@@ -2109,7 +2029,6 @@ export default function App() {
             {/* Controls */}
             <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-2.5'}`}>
               <button onClick={resetTimer} className={`flex items-center justify-center rounded-full glass-card text-white/70 hover:text-white transition-all ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}><RotateCcw size={isMobile ? 14 : 16} /></button>
-              <button onClick={openPopout} title="Pop out timer" className={`flex items-center justify-center rounded-full glass-card text-white/70 hover:text-white transition-all ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}><Maximize2 size={isMobile ? 14 : 16} /></button>
               <button onClick={() => setMode(mode)} className={`flex items-center justify-center rounded-full glass-card text-white/70 hover:text-white transition-all ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}><SkipBack size={isMobile ? 14 : 16} /></button>
               <button 
                 onClick={toggleTimer} 
