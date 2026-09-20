@@ -1058,16 +1058,18 @@ export default function App() {
     }
   }, [timeLeft, isRunning, mode, accentColor]);
 
-  // Listen for popout button commands
+  // Listen for popout button commands — use a ref to avoid stale closures
+  const popoutHandlersRef = useRef({ toggleTimer, resetTimer, onTimerEnd });
+  useEffect(() => { popoutHandlersRef.current = { toggleTimer, resetTimer, onTimerEnd }; });
   useEffect(() => {
     const handler = (e: MessageEvent) => {
-      if (e.data?.type === 'timer-toggle') toggleTimer();
-      if (e.data?.type === 'timer-reset') resetTimer();
-      if (e.data?.type === 'timer-skip') onTimerEnd();
+      if (e.data?.type === 'timer-toggle') popoutHandlersRef.current.toggleTimer();
+      if (e.data?.type === 'timer-reset') popoutHandlersRef.current.resetTimer();
+      if (e.data?.type === 'timer-skip') popoutHandlersRef.current.onTimerEnd();
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [toggleTimer, resetTimer, onTimerEnd]);
+  }, []);
 
   // --- Timer Logic ---
   const timerExpiredRef = useRef(false);
