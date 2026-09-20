@@ -1199,16 +1199,14 @@ export default function App() {
   };
 
   const openPopout = () => {
-    // If already open, focus it
     if (popoutRef.current && !popoutRef.current.closed) {
       popoutRef.current.focus();
       return;
     }
-
     const w = 300, h = 340;
-    const left = window.screen.width - w - 20;
-    const top = 20;
-    const popup = window.open('', 'mimodoro-timer', `width=${w},height=${h},left=${left},top=${top},resizable=no,toolbar=no,menubar=no,scrollbars=no`);
+    const popup = window.open('', 'mimodoro-timer',
+      'width=' + w + ',height=' + h + ',left=' + (window.screen.width - w - 20) + ',top=20,resizable=no,toolbar=no,menubar=no,scrollbars=no'
+    );
     if (!popup) return;
     popoutRef.current = popup;
 
@@ -1217,50 +1215,43 @@ export default function App() {
 
     const render = (tl: number, running: boolean, md: string, accent: string) => {
       if (!popup || popup.closed) return;
-      const m = Math.floor(tl / 60).toString().padStart(2, '0');
-      const s = (tl % 60).toString().padStart(2, '0');
+      const mm = Math.floor(tl / 60).toString().padStart(2, '0');
+      const ss = (tl % 60).toString().padStart(2, '0');
       const label = md === 'focus' ? 'FOCUSING' : md === 'short' ? 'SHORT BREAK' : 'LONG BREAK';
+      const playIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>';
+      const pauseIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+      const html = [
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + mm + ':' + ss + ' Mimodoro</title>',
+        '<style>',
+        '* { margin:0; padding:0; box-sizing:border-box; }',
+        'body { background:#0d1117; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:system-ui,sans-serif; user-select:none; }',
+        '.time { font-size:72px; font-weight:700; color:#fff; letter-spacing:-2px; line-height:1; }',
+        '.label { font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-top:10px; }',
+        '.controls { display:flex; gap:12px; margin-top:28px; align-items:center; }',
+        'button { border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }',
+        'button:hover { opacity:0.75; }',
+        '.btn-sec { width:40px; height:40px; background:rgba(255,255,255,0.08); }',
+        '.btn-main { width:54px; height:54px; background:' + accent + '; }',
+        '</style></head><body>',
+        '<div class="time">' + mm + ':' + ss + '</div>',
+        '<div class="label">' + (running ? label : 'PAUSED') + '</div>',
+        '<div class="controls">',
+        '<button class="btn-sec" onclick="window.opener.postMessage({type:'timer-reset'},'*')">',
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
+        '</button>',
+        '<button class="btn-main" onclick="window.opener.postMessage({type:'timer-toggle'},'*')">' + (running ? pauseIcon : playIcon) + '</button>',
+        '<button class="btn-sec" onclick="window.opener.postMessage({type:'timer-skip'},'*')">',
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><polygon points="5,4 15,12 5,20"/><line x1="19" y1="5" x2="19" y2="19"/></svg>',
+        '</button>',
+        '</div></body></html>'
+      ].join('');
       popup.document.open();
-      popup.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${m}:${s} Mimodoro</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#0d1117; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:'DM Sans',sans-serif; user-select:none; }
-  .time { font-size:72px; font-weight:700; color:#fff; letter-spacing:-2px; line-height:1; }
-  .label { font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.5); margin-top:10px; }
-  .ring { margin-bottom:16px; }
-  .controls { display:flex; gap:12px; margin-top:24px; }
-  button { width:40px; height:40px; border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:opacity .15s; }
-  button:hover { opacity:.8; }
-  .btn-main { width:52px; height:52px; background:${accent}; }
-  .btn-sec { background:rgba(255,255,255,0.08); }
-  svg { display:block; }
-</style></head><body>
-<div class="time">${m}:${s}</div>
-<div class="label">${running ? label : 'PAUSED'}</div>
-<div class="controls">
-  <button class="btn-sec" onclick="window.opener.postMessage({type:'timer-reset'},'*')" title="Reset">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-  </button>
-  <button class="btn-main" onclick="window.opener.postMessage({type:'timer-toggle'},'*')" title="${running ? 'Pause' : 'Play'}">
-    ${running
-      ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`
-      : `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>`}
-  </button>
-  <button class="btn-sec" onclick="window.opener.postMessage({type:'timer-skip'},'*')" title="Skip">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><polygon points="5,4 15,12 5,20"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
-  </button>
-</div>
-</body></html>`);
+      popup.document.write(html);
       popup.document.close();
     };
 
     render(timeLeft, isRunning, mode, accentColor);
-
-    // Sync via BroadcastChannel
-    channel.onmessage = (e) => {
-      render(e.data.timeLeft, e.data.isRunning, e.data.mode, e.data.accentColor);
-    };
+    channel.onmessage = (e) => render(e.data.timeLeft, e.data.isRunning, e.data.mode, e.data.accentColor);
   };
 
   const skipBreak = () => {
