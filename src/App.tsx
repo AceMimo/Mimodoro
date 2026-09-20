@@ -1046,25 +1046,13 @@ export default function App() {
     return count;
   }, [allTimeStats.dailyLog]);
 
-  // --- BroadcastChannel setup ---
-  useEffect(() => {
-    const ch = new BroadcastChannel('mimodoro-timer');
-    timerChannel.current = ch;
-    ch.onmessage = (e) => {
-      if (e.data?.cmd === 'toggle') toggleTimer();
-      if (e.data?.cmd === 'reset')  resetTimer();
-      if (e.data?.cmd === 'skip')   onTimerEnd();
-    };
-    return () => ch.close();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // --- Tab Title Countdown + Popout Sync ---
+  // --- Tab Title Countdown ---
   useEffect(() => {
     const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
     const secs = (timeLeft % 60).toString().padStart(2, '0');
     const label = mode === 'focus' ? '🍅' : '☕';
     document.title = isRunning ? `${mins}:${secs} ${label} Mimodoro` : 'Mimodoro';
+    timerChannel.current?.postMessage({ timeLeft, isRunning, mode, accentColor });
   }, [timeLeft, isRunning, mode, accentColor]);
 
 
@@ -1218,6 +1206,22 @@ export default function App() {
     setTimeLeft(nextTime);
     setTotalTime(nextTime);
   };
+
+  // --- BroadcastChannel for popout ---
+  const timerCmdRef = useRef<{ toggle: () => void; reset: () => void; skip: () => void } | null>(null);
+  useEffect(() => {
+    timerCmdRef.current = { toggle: toggleTimer, reset: resetTimer, skip: onTimerEnd };
+  });
+  useEffect(() => {
+    const ch = new BroadcastChannel('mimodoro-timer');
+    timerChannel.current = ch;
+    ch.onmessage = (e) => {
+      if (e.data?.cmd === 'toggle') timerCmdRef.current?.toggle();
+      if (e.data?.cmd === 'reset')  timerCmdRef.current?.reset();
+      if (e.data?.cmd === 'skip')   timerCmdRef.current?.skip();
+    };
+    return () => ch.close();
+  }, []);
 
   // --- Music Logic ---
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
