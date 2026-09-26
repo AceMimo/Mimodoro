@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { createPortal } from 'react-dom';
 import { Play, Pause, RotateCcw, SkipBack, SkipForward, Music, Image as ImageIcon, Volume2, Settings, Check, X, Plus, Trash2, ExternalLink, Maximize2, Video, Youtube, ChevronRight, ChevronLeft, Wind, PanelRightOpen, PanelRightClose } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -218,7 +217,6 @@ export default function App() {
   const [showHubOverlay, setShowHubOverlay] = useState(false);
   const [masterVolume, setMasterVolume] = useState(0.6);
   const [musicVolume, setMusicVolume] = useState(0.8);
-  const [vizBinPct, setVizBinPct] = useState(0.06);
   const [activeSounds, setActiveSounds] = useState<Record<string, number>>({});
   const [soundVolumes, setSoundVolumes] = useState<Record<string, number>>(() => {
     const v: Record<string, number> = {};
@@ -236,6 +234,7 @@ export default function App() {
   const [isRadioMenuOpen, setIsRadioMenuOpen] = useState(false);
   const [customRadioUrl, setCustomRadioUrl] = useState('');
   const [ytUrl, setYtUrl] = useState('');
+  const [ytPlaying, setYtPlaying] = useState(false);
   const [spotifyUrl, setSpotifyUrl] = useState('');
   const [isYtVisible, setIsYtVisible] = useState(true);
   const [isLocalPlaying, setIsLocalPlaying] = useState(false);
@@ -267,9 +266,6 @@ export default function App() {
   const gnodesRef = useRef<Record<string, GainNode>>({});
   const snodesRef = useRef<Record<string, { stop: () => void }>>({});
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const vizContainerRef = useRef<HTMLDivElement>(null);
-  const vizBarElsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const vizHeightsRef = useRef<number[]>(new Array(150).fill(0));
   const localAudioRef = useRef<HTMLAudioElement>(null);
   const localSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const radioAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -308,7 +304,6 @@ export default function App() {
         if (data.soundVolumes) setSoundVolumes(data.soundVolumes);
         if (data.masterVolume) setMasterVolume(data.masterVolume);
         if (data.musicVolume) setMusicVolume(data.musicVolume);
-        if (data.vizBinPct) setVizBinPct(data.vizBinPct);
         if (data.sessionHistory) setSessionHistory(data.sessionHistory);
         if (data.allTimeStats) setAllTimeStats(data.allTimeStats);
 
@@ -335,11 +330,11 @@ export default function App() {
       const today = new Date().toISOString().slice(0, 10);
       const state = {
         tasks, sessionsDone, focusMins, tasksDone, config, accentColor, activeBg, bgType,
-        soundVolumes, masterVolume, musicVolume, sessionHistory, allTimeStats, lastDate: today, vizBinPct
+        soundVolumes, masterVolume, musicVolume, sessionHistory, allTimeStats, lastDate: today
       };
       localStorage.setItem('focus_app_state', JSON.stringify(state));
     }, 1000);
-  }, [tasks, sessionsDone, focusMins, tasksDone, config, accentColor, activeBg, bgType, soundVolumes, masterVolume, musicVolume, sessionHistory, allTimeStats, vizBinPct]);
+  }, [tasks, sessionsDone, focusMins, tasksDone, config, accentColor, activeBg, bgType, soundVolumes, masterVolume, musicVolume, sessionHistory, allTimeStats]);
 
   // Sync timer with config changes
   useEffect(() => {
@@ -820,57 +815,6 @@ export default function App() {
         high = 0.1 + 0.05 * Math.sin(t * 5);
       }
 
-      // VIZ — div bars, direct DOM update
-      if (vizContainerRef.current) {
-        const BAR_COUNT = 150;
-        const H = 170;
-        const rgb = hexToRgb(accentColor);
-
-        let values = new Array(BAR_COUNT).fill(0);
-        let bassEnergy = 0;
-
-        if (analyser) {
-          const buf2 = new Uint8Array(analyser.frequencyBinCount);
-          analyser.getByteFrequencyData(buf2);
-          const totalBins = buf2.length;
-
-          // Bass: bottom 5% of bins — drives container lift only
-          const bassBins = Math.max(4, Math.floor(totalBins * 0.05));
-          let bassSum = 0;
-          for (let b = 0; b < bassBins; b++) bassSum += buf2[b];
-          bassEnergy = (bassSum / bassBins) / 255;
-
-          // Mid + treble: 5%–vizBinPct% of bins — drives individual bars
-          const midStart = bassBins;
-          const midEnd = Math.max(midStart + 10, Math.floor(totalBins * vizBinPct));
-          const usableBins = midEnd - midStart;
-
-          for (let i = 0; i < BAR_COUNT; i++) {
-            const t = i / (BAR_COUNT - 1);
-            const logT = Math.log2(1 + t * 7) / Math.log2(8);
-            const pos = logT * (usableBins - 1);
-            const binLo = midStart + Math.floor(pos);
-            const binHi = Math.min(midEnd - 1, binLo + 1);
-            const frac = pos - Math.floor(pos);
-            const val = (buf2[binLo] ?? 0) * (1 - frac) + (buf2[binHi] ?? 0) * frac;
-            const normalized = val / 255;
-            values[i] = normalized < 0.05 ? 0 : normalized;
-          }
-        }
-
-        for (let i = 0; i < BAR_COUNT; i++) {
-          const el = vizBarElsRef.current[i];
-          if (!el) continue;
-          const targetH = values[i] * H * 0.75;
-          const curr = vizHeightsRef.current[i];
-          const lerp = targetH > curr ? 0.15 : 0.35;
-          vizHeightsRef.current[i] += (targetH - curr) * lerp;
-          const h = Math.max(0, vizHeightsRef.current[i]);
-          const alpha = 0.15 + (h / H) * 0.7;
-          el.style.height = h + 'px';
-          el.style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
-        }
-      }
 
       // BG & Effects
       if (canvasRef.current && (bgType === 'anim' || bgType === 'static')) {
@@ -1102,6 +1046,14 @@ export default function App() {
     return count;
   }, [allTimeStats.dailyLog]);
 
+  // --- Tab Title Countdown ---
+  useEffect(() => {
+    const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const secs = (timeLeft % 60).toString().padStart(2, '0');
+    const label = mode === 'focus' ? '🍅' : '☕';
+    document.title = isRunning ? `${mins}:${secs} ${label} Mimodoro` : 'Mimodoro';
+  }, [timeLeft, isRunning, mode]);
+
   // --- Timer Logic ---
   const timerExpiredRef = useRef(false);
 
@@ -1144,18 +1096,16 @@ export default function App() {
       // Update all-time stats
       const today = new Date().toISOString().slice(0, 10);
       setAllTimeStats(prev => {
-        const log = [...prev.dailyLog];
-        const todayEntry = log.find(d => d.date === today);
-        if (todayEntry) {
-          todayEntry.sessions += 1;
-          todayEntry.focusMins += config.focus;
-        } else {
-          log.push({ date: today, sessions: 1, focusMins: config.focus });
-        }
+        const exists = prev.dailyLog.some(d => d.date === today);
+        const log = exists
+          ? prev.dailyLog.map(d => d.date === today
+              ? { ...d, sessions: d.sessions + 1, focusMins: d.focusMins + config.focus }
+              : d)
+          : [...prev.dailyLog, { date: today, sessions: 1, focusMins: config.focus }];
         return {
           totalSessions: prev.totalSessions + 1,
           totalFocusMins: prev.totalFocusMins + config.focus,
-          dailyLog: log.slice(-365), // keep up to 1 year
+          dailyLog: log.slice(-365),
         };
       });
 
@@ -1238,26 +1188,6 @@ export default function App() {
     const nextTime = config.focus * 60;
     setTimeLeft(nextTime);
     setTotalTime(nextTime);
-  };
-
-  // --- Tab Title + Popout Broadcast ---
-  useEffect(() => {
-    const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    const secs = (timeLeft % 60).toString().padStart(2, '0');
-    const emoji = mode === 'focus' ? '🍅' : '☕';
-    document.title = isRunning ? `${mins}:${secs} ${emoji} Mimodoro` : 'Mimodoro';
-    const ch = new BroadcastChannel('mimodoro-timer');
-    ch.postMessage({ timeLeft, isRunning, mode, accentColor });
-    ch.close();
-  }, [timeLeft, isRunning, mode, accentColor]);
-
-  const openPopout = () => {
-    const w = 280, h = 310;
-    window.open(
-      '/popout.html',
-      'mimodoro-popout',
-      `width=${w},height=${h},left=${screen.width - w - 20},top=20,resizable=no,toolbar=no,menubar=no,scrollbars=no`
-    );
   };
 
   // --- Music Logic ---
@@ -1344,7 +1274,16 @@ export default function App() {
     const m = raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
     if (m) {
       setYtUrl(`https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`);
+      setYtPlaying(true);
     }
+  };
+
+  const ytCommand = (cmd: 'playVideo' | 'pauseVideo' | 'stopVideo') => {
+    const iframe = document.getElementById('globalYtPlayer') as HTMLIFrameElement | null;
+    if (!iframe?.contentWindow) return;
+    iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: cmd, args: [] }), '*');
+    if (cmd === 'playVideo') setYtPlaying(true);
+    else setYtPlaying(false);
   };
 
   const handleSpotifyGo = () => {
@@ -1571,13 +1510,22 @@ export default function App() {
                     placeholder="Paste YouTube Link..." 
                     value={ytUrl}
                     onChange={(e) => setYtUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleYtGo()}
                     className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-white/20 relative z-30 text-white/80"
                   />
-                  <GlassCard as="button" className="p-2 rounded-xl hover:bg-white/20 transition-all"><Plus size={16} /></GlassCard>
+                  <GlassCard as="button" onClick={handleYtGo} className="p-2 rounded-xl hover:bg-white/20 transition-all"><Plus size={16} /></GlassCard>
                 </div>
-                <div className="text-[9px] text-white/50 leading-relaxed italic">
-                  Tip: Use "nocookie" embeds for better privacy and performance.
-                </div>
+                {ytUrl.startsWith('https://www.youtube.com/embed/') && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <GlassCard as="button" onClick={() => ytCommand(ytPlaying ? 'pauseVideo' : 'playVideo')} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl hover:bg-white/20 transition-all text-[11px] font-medium">
+                      {ytPlaying ? <Pause size={13} /> : <Play size={13} />}
+                      {ytPlaying ? 'Pause' : 'Play'}
+                    </GlassCard>
+                    <GlassCard as="button" onClick={() => { ytCommand('stopVideo'); setYtUrl(''); }} className="p-2 rounded-xl hover:bg-white/20 transition-all text-white/50 hover:text-white/80">
+                      <X size={13} />
+                    </GlassCard>
+                  </div>
+                )}
               </GlassCard>
 
               <GlassCard className="p-4 rounded-2xl">
@@ -1826,11 +1774,11 @@ export default function App() {
                 <div className="text-[10px] font-semibold tracking-widest uppercase text-white/50 mb-2.5">All-Time Stats</div>
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   <GlassCard className="p-3 rounded-xl text-center">
-                    <div className="text-[18px] font-bold font-display text-white/90">{allTimeStats.totalSessions}</div>
+                    <div className="text-[18px] font-bold font-display text-white/90">{allTimeStats.dailyLog.reduce((s, d) => s + d.sessions, 0)}</div>
                     <div className="text-[9px] text-white/40 uppercase tracking-wider mt-0.5">Total Sessions</div>
                   </GlassCard>
                   <GlassCard className="p-3 rounded-xl text-center">
-                    <div className="text-[18px] font-bold font-display text-white/90">{Math.floor(allTimeStats.totalFocusMins / 60)}h {allTimeStats.totalFocusMins % 60}m</div>
+                    <div className="text-[18px] font-bold font-display text-white/90">{Math.floor(allTimeStats.dailyLog.reduce((s, d) => s + d.focusMins, 0) / 60)}h {allTimeStats.dailyLog.reduce((s, d) => s + d.focusMins, 0) % 60}m</div>
                     <div className="text-[9px] text-white/40 uppercase tracking-wider mt-0.5">Total Focus</div>
                   </GlassCard>
                 </div>
@@ -1858,22 +1806,6 @@ export default function App() {
                 )}
               </div>
 
-              {/* Visualizer Tuning */}
-              <div>
-                <div className="text-[10px] font-semibold tracking-widest uppercase text-white/50 mb-2.5">Visualizer Range</div>
-                <GlassCard className="flex items-center gap-3 rounded-xl py-1.5 px-3">
-                  <span className="text-[10px] text-white/50 shrink-0">Bass</span>
-                  <input
-                    type="range" min="1" max="50"
-                    value={Math.round(vizBinPct * 100)}
-                    onChange={(e) => setVizBinPct(parseInt(e.target.value) / 100)}
-                    className="flex-1 h-1 cursor-pointer"
-                    style={{ accentColor }}
-                  />
-                  <span className="text-[10px] text-white/50 shrink-0">Full</span>
-                  <span className="text-[10px] text-white/70 w-8 text-right">{Math.round(vizBinPct * 100)}%</span>
-                </GlassCard>
-              </div>
 
               <div>
                 <div className="text-[10px] font-semibold tracking-widest uppercase text-white/50 mb-2.5"> Accent Color</div>
@@ -1935,7 +1867,7 @@ export default function App() {
         </div>
       </div>
     );
-  }, [activeTab, accentColor, ALL_SOUNDS, activeSounds, syncSound, ANIM_BGS, activeBg, VIDEO_BGS, STATIC_BGS, overlayOpacity, ytUrl, radioError, isRadioPlaying, isRadioMenuOpen, radioUrl, RADIO_STREAMS, spotifyUrl, musicVolume, tasks, config, sessionsDone, sessionHistory, allTimeStats, vizBinPct]);
+  }, [activeTab, accentColor, ALL_SOUNDS, activeSounds, syncSound, ANIM_BGS, activeBg, VIDEO_BGS, STATIC_BGS, overlayOpacity, ytUrl, radioError, isRadioPlaying, isRadioMenuOpen, radioUrl, RADIO_STREAMS, spotifyUrl, musicVolume, tasks, config, sessionsDone, sessionHistory, allTimeStats]);
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#09090f] text-[#eeeef5] font-sans">
@@ -2020,22 +1952,7 @@ export default function App() {
         />
       </div>
 
-      {/* Visualizer */}
-      {typeof document !== "undefined" && createPortal(
-        <div
-          ref={vizContainerRef}
-          style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: '170px', display: 'flex', alignItems: 'flex-end', gap: '2px', pointerEvents: 'none', zIndex: 1 }}
-        >
-          {Array.from({ length: 150 }, (_, i) => (
-            <div
-              key={i}
-              ref={el => { vizBarElsRef.current[i] = el; }}
-              style={{ flex: 1, height: '0px' }}
-            />
-          ))}
-        </div>,
-        document.body
-      )}
+
 
       {/* App UI */}
       <div className="relative z-10 h-full overflow-hidden">
@@ -2112,7 +2029,6 @@ export default function App() {
             {/* Controls */}
             <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-2.5'}`}>
               <button onClick={resetTimer} className={`flex items-center justify-center rounded-full glass-card text-white/70 hover:text-white transition-all ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}><RotateCcw size={isMobile ? 14 : 16} /></button>
-              <button onClick={openPopout} title="Pop out timer" className={`flex items-center justify-center rounded-full glass-card text-white/70 hover:text-white transition-all ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}><Maximize2 size={isMobile ? 14 : 16} /></button>
               <button onClick={() => setMode(mode)} className={`flex items-center justify-center rounded-full glass-card text-white/70 hover:text-white transition-all ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}><SkipBack size={isMobile ? 14 : 16} /></button>
               <button 
                 onClick={toggleTimer} 
