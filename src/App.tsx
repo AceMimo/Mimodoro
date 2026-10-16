@@ -1589,6 +1589,7 @@ export default function App() {
   // --- Render Helpers ---
   const progress = timeLeft / totalTime;
   const dashOffset = 2 * Math.PI * 100 * (1 - progress);
+  const sidebarToggleButtonClass = "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/40 text-white/70 transition-colors hover:border-white/20 hover:bg-black/55 hover:text-white";
 
   const sidebarContent = (() => {
     return (
@@ -1596,11 +1597,13 @@ export default function App() {
         <div className="p-4 border-b border-white/5 flex items-center justify-between">
           <div className="font-display text-[20px] font-bold text-white/90">Mimodoro<span style={{ color: accentColor }}>.</span></div>
           <button 
+            type="button"
             onClick={() => setIsSidebarOpen(false)}
             aria-label="Close settings sidebar"
-            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-all"
+            title="Close sidebar"
+            className={sidebarToggleButtonClass}
           >
-            <PanelRightOpen size={18} />
+            <PanelRightClose size={24} />
           </button>
         </div>
         <div className="flex items-center gap-1 p-2 border-b border-white/5">
@@ -2257,9 +2260,11 @@ export default function App() {
         {/* Floating Sidebar Toggle (Top Right) */}
         {!isSidebarOpen && !showHubOverlay && (
           <button 
+            type="button"
             onClick={() => setIsSidebarOpen(true)}
             aria-label="Open settings sidebar"
-            className="fixed top-4 right-4 z-[9999] w-12 h-12 flex items-center justify-center rounded-2xl border border-white/10 bg-black/40 text-white/70 cursor-pointer"
+            title="Open sidebar"
+            className={`fixed top-4 right-4 z-[9999] ${sidebarToggleButtonClass}`}
           >
             <PanelRightOpen size={24} />
           </button>
