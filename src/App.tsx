@@ -1596,15 +1596,6 @@ export default function App() {
       <div className="flex flex-col h-full">
         <div className="p-4 border-b border-white/5 flex items-center justify-between">
           <div className="font-display text-[20px] font-bold text-white/90">Mimodoro<span style={{ color: accentColor }}>.</span></div>
-          <button 
-            type="button"
-            onClick={() => setIsSidebarOpen(false)}
-            aria-label="Close settings sidebar"
-            title="Close sidebar"
-            className={sidebarToggleButtonClass}
-          >
-            <PanelRightClose size={24} />
-          </button>
         </div>
         <div className="flex items-center gap-1 p-2 border-b border-white/5">
           {/* Mobile specific close removed as we have a global one now */}
@@ -2258,15 +2249,15 @@ export default function App() {
       {/* App UI */}
       <div className="relative z-10 h-full overflow-hidden">
         {/* Floating Sidebar Toggle (Top Right) */}
-        {!isSidebarOpen && !showHubOverlay && (
+        {!showHubOverlay && (
           <button 
             type="button"
-            onClick={() => setIsSidebarOpen(true)}
-            aria-label="Open settings sidebar"
-            title="Open sidebar"
+            onClick={() => setIsSidebarOpen(open => !open)}
+            aria-label={isSidebarOpen ? 'Close settings sidebar' : 'Open settings sidebar'}
+            title={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
             className={`fixed top-4 right-4 z-[9999] ${sidebarToggleButtonClass}`}
           >
-            <PanelRightOpen size={24} />
+            {isSidebarOpen ? <PanelRightClose size={24} /> : <PanelRightOpen size={24} />}
           </button>
         )}
 
