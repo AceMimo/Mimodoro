@@ -310,8 +310,20 @@ export default function App() {
     if (saveTimeoutRef.current !== null) clearTimeout(saveTimeoutRef.current);
     Object.values(snodesRef.current).forEach(sound => sound.stop());
     radioListenerCleanupRef.current?.();
-    localAudioRef.current?.pause();
-    radioAudioRef.current?.pause();
+    if (localAudioRef.current) {
+      localAudioRef.current.pause();
+      localAudioRef.current.removeAttribute('src');
+      localAudioRef.current.load();
+    }
+    if (radioAudioRef.current) {
+      radioAudioRef.current.pause();
+      radioAudioRef.current.removeAttribute('src');
+      radioAudioRef.current.load();
+    }
+    try { localSourceRef.current?.disconnect(); } catch (e) { }
+    try { radioSourceRef.current?.disconnect(); } catch (e) { }
+    localSourceRef.current = null;
+    radioSourceRef.current = null;
     localObjectUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
     localObjectUrlsRef.current.clear();
     if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
@@ -528,17 +540,34 @@ export default function App() {
     gn.connect(analyserRef.current);
     gnodesRef.current[id] = gn;
 
-    const activeNodes: { stop: () => void }[] = [];
+    const activeCleanups = new Set<() => void>();
     const intervals: number[] = [];
-    const timeouts: number[] = [];
+    const timeouts = new Set<ReturnType<typeof setTimeout>>();
 
-    const addNode = (node: any) => {
-      activeNodes.push({ stop: () => { try { node.stop(); } catch (e) { } } });
+    const registerCleanup = (cleanup: () => void) => {
+      let active = true;
+      const dispose = () => {
+        if (!active) return;
+        active = false;
+        activeCleanups.delete(dispose);
+        try { cleanup(); } catch (e) { }
+      };
+      activeCleanups.add(dispose);
+      return dispose;
     };
 
+    const addNode = (node: any) => registerCleanup(() => {
+      try { if (typeof node.stop === 'function') node.stop(); } catch (e) { }
+      try { node.disconnect(); } catch (e) { }
+    });
+
     const addTimeout = (fn: () => void, delay: number) => {
-      const t = setTimeout(fn, delay);
-      timeouts.push(t as any);
+      let t: ReturnType<typeof setTimeout>;
+      t = setTimeout(() => {
+        timeouts.delete(t);
+        fn();
+      }, delay);
+      timeouts.add(t);
       return t;
     };
 
@@ -559,6 +588,8 @@ export default function App() {
       lgn.connect(gn);
       src.start();
       addNode(src);
+      addNode(f);
+      addNode(lgn);
       return { src, f, lgn };
     };
 
@@ -595,8 +626,13 @@ export default function App() {
         tgn.gain.exponentialRampToValueAtTime(0.001, now + dur);
         
         source.start();
+        const disposeSource = addNode(source);
+        const disposeFilter = addNode(f);
+        const disposeGain = addNode(tgn);
         addTimeout(() => {
-          try { source.stop(); source.disconnect(); tgn.disconnect(); } catch (e) {}
+          disposeSource();
+          disposeFilter();
+          disposeGain();
         }, dur * 1000 + 100);
       };
 
@@ -606,7 +642,7 @@ export default function App() {
       intervals.push(interval as any);
     };
 
-    const runSynthesis = (stype: string, gn: GainNode, addNode: (n: any) => void, createLayer: any, createTexture: any, intervals: number[], timeouts: number[]) => {
+    const runSynthesis = (stype: string, gn: GainNode, addNode: (n: any) => void, createLayer: any, createTexture: any, intervals: number[], timeouts: Set<ReturnType<typeof setTimeout>>) => {
       if (stype === 'tone432' || stype === 'tone528') {
         const o = ctx.createOscillator();
         o.type = 'sine';
@@ -742,22 +778,33 @@ export default function App() {
       
       const source = ctx.createMediaElementSource(audio);
       source.connect(gn);
+      addNode(source);
       
       audio.play().catch(e => {
+        if (gnodesRef.current[id] !== gn) return;
         console.warn('Audio play failed, falling back to synthesis', e);
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
         runSynthesis(stype, gn, addNode, createLayer, createTexture, intervals, timeouts);
       });
       
-      activeNodes.push({ stop: () => { audio.pause(); audio.src = ''; } });
+      registerCleanup(() => {
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+      });
     } else {
       runSynthesis(stype, gn, addNode, createLayer, createTexture, intervals, timeouts);
     }
 
     snodesRef.current[id] = { 
       stop: () => { 
-        activeNodes.forEach(n => n.stop()); 
+        activeCleanups.forEach(dispose => dispose());
+        activeCleanups.clear();
         intervals.forEach(i => clearInterval(i));
         timeouts.forEach(t => clearTimeout(t));
+        timeouts.clear();
       } 
     };
 
@@ -883,7 +930,7 @@ export default function App() {
 
 
   useEffect(() => {
-    initPts(80, activeBg);
+    initPts(48, activeBg);
     
     const handleResize = () => {
       if (canvasRef.current) {
@@ -895,10 +942,18 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     handleResize();
 
-    let rafId: number;
+    const frameInterval = 1000 / 24;
+    let animationTimer: number | null = null;
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const stopAnimation = () => {
+      if (animationTimer !== null) window.clearTimeout(animationTimer);
+      animationTimer = null;
+    };
+
     const loop = () => {
-      if (bgType !== 'anim') return;
-      rafId = requestAnimationFrame(loop);
+      animationTimer = null;
+      if (bgType !== 'anim' || document.hidden || motionPreference.matches) return;
       
       let bass = 0, mid = 0, high = 0;
       const isExternalMusic = ytUrl.startsWith('https://www.youtube.com/embed/') || 
@@ -906,9 +961,8 @@ export default function App() {
                              isRadioPlaying;
       
       const analyser = analyserRef.current;
-      if (analyser) {
-        const buf = analyserDataRef.current;
-        if (!buf) return;
+      const buf = analyserDataRef.current;
+      if (analyser && buf) {
         analyser.getByteFrequencyData(buf);
         // Optimized frequency analysis
         for (let i = 0; i < 10; i++) bass += buf[i];
@@ -944,7 +998,7 @@ export default function App() {
             bgFadeRef.current -= 0.12;
             if (bgFadeRef.current <= 0) {
               prevBgRef.current = activeBg;
-              initPts(80, activeBg);
+              initPts(48, activeBg);
             }
           } else {
             bgFadeRef.current = Math.min(1, bgFadeRef.current + 0.12);
@@ -1050,11 +1104,33 @@ export default function App() {
         }
       }
 
+      animationTimer = window.setTimeout(loop, frameInterval);
     };
-    if (bgType === 'anim') loop();
+
+    const scheduleAnimation = () => {
+      if (bgType !== 'anim' || document.hidden || motionPreference.matches || animationTimer !== null) return;
+      animationTimer = window.setTimeout(loop, frameInterval);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) stopAnimation();
+      else scheduleAnimation();
+    };
+
+    const handleMotionPreferenceChange = () => {
+      if (motionPreference.matches) stopAnimation();
+      else scheduleAnimation();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    motionPreference.addEventListener('change', handleMotionPreferenceChange);
+    scheduleAnimation();
+
     return () => {
       window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(rafId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      motionPreference.removeEventListener('change', handleMotionPreferenceChange);
+      stopAnimation();
     };
   }, [bgType, activeBg, accentColor, initPts]);
 
@@ -1621,7 +1697,7 @@ export default function App() {
                       setActiveBg(b.id); 
                       setBgType(b.id === 'none' ? 'none' : 'anim'); 
                       setAccentColor(b.accent);
-                      initPts(80, b.id);
+                      initPts(48, b.id);
                     }}
                     className={`relative aspect-video rounded-xl overflow-hidden cursor-pointer transition-all ${activeBg === b.id ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
                     style={{ borderColor: activeBg === b.id ? accentColor : 'transparent' }}
