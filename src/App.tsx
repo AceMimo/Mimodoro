@@ -136,6 +136,15 @@ const QUOTES = [
   ["Do the hard jobs first. The easy jobs will take care of themselves.", "Dale Carnegie"]
 ];
 
+const shuffleQuotes = () => {
+  const shuffled = [...QUOTES];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 // --- Helper Functions ---
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60);
@@ -231,7 +240,10 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('tasks');
   const [overlayOpacity, setOverlayOpacity] = useState(54);
   const [accentColor, setAccentColor] = useState('#7c6fff');
-  const [quote, setQuote] = useState(QUOTES[0]);
+  const [quote, setQuote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
+  const quoteDeckRef = useRef<string[][]>([]);
+  const quoteDeckIndexRef = useRef(0);
+  const currentQuoteRef = useRef(quote);
   const [showBreakOverlay, setShowBreakOverlay] = useState(false);
   const [breakType, setBreakType] = useState<Mode>('short');
   const [showHubOverlay, setShowHubOverlay] = useState(false);
@@ -270,6 +282,26 @@ export default function App() {
   const [sessionHistory, setSessionHistory] = useState<{ id: number; mode: Mode; timestamp: number }[]>([]);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
+  const showNextQuote = useCallback(() => {
+    if (quoteDeckRef.current.length === 0 || quoteDeckIndexRef.current >= quoteDeckRef.current.length) {
+      const nextDeck = shuffleQuotes();
+      if (nextDeck.length > 1 && nextDeck[0][0] === currentQuoteRef.current[0]) {
+        [nextDeck[0], nextDeck[1]] = [nextDeck[1], nextDeck[0]];
+      }
+      quoteDeckRef.current = nextDeck;
+      quoteDeckIndexRef.current = 0;
+    }
+
+    const nextQuote = quoteDeckRef.current[quoteDeckIndexRef.current++];
+    currentQuoteRef.current = nextQuote;
+    setQuote(nextQuote);
+  }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(showNextQuote, 45_000);
+    return () => window.clearInterval(interval);
+  }, [showNextQuote]);
+
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
@@ -291,6 +323,7 @@ export default function App() {
   const radioListenerCleanupRef = useRef<(() => void) | null>(null);
   const radioRequestIdRef = useRef(0);
   const sceneSyncedSoundRef = useRef<string | null>(null);
+  const lastMusicSourceRef = useRef<'radio' | 'local' | 'youtube' | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const localAudioRef = useRef<HTMLAudioElement>(null);
   const localSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
@@ -1186,6 +1219,7 @@ export default function App() {
     setRadioUrl(url);
     setIsRadioPlaying(true);
     setRadioError(null);
+    lastMusicSourceRef.current = 'radio';
     audio.volume = musicVolume;
 
     const onAudioError = (e: Event) => {
@@ -1340,13 +1374,8 @@ export default function App() {
       timerExpiredRef.current = false;
       startTimerRef.current(breakTime);
 
-      // Change to a random quote
-      const currentIndex = QUOTES.findIndex(q => q[0] === quote[0]);
-      let newIndex;
-      do {
-        newIndex = Math.floor(Math.random() * QUOTES.length);
-      } while (newIndex === currentIndex && QUOTES.length > 1);
-      setQuote(QUOTES[newIndex]);
+      // Session changes also advance through the shuffled quote deck.
+      showNextQuote();
     } else {
       setShowBreakOverlay(false);
       setMode('focus');
@@ -1354,7 +1383,7 @@ export default function App() {
       setTimeLeft(nextTime);
       setTotalTime(nextTime);
     }
-  }, [mode, config, sessionsDone, totalTime, initAudio, resumeCtx, quote]);
+  }, [mode, config, sessionsDone, totalTime, initAudio, resumeCtx, showNextQuote]);
 
   const startTimer = useCallback((durationSeconds = timeLeft) => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -1478,6 +1507,7 @@ export default function App() {
   const playLocalTrack = (index: number) => {
     setCurrentTrackIndex(index);
     if (localAudioRef.current) {
+      lastMusicSourceRef.current = 'local';
       localAudioRef.current.src = localFiles[index].url;
       void localAudioRef.current.play().catch(() => setIsLocalPlaying(false));
       connectLocalAudio();
@@ -1503,6 +1533,7 @@ export default function App() {
       localAudioRef.current.pause();
       setIsLocalPlaying(false);
     } else {
+      lastMusicSourceRef.current = 'local';
       void localAudioRef.current.play().catch(() => setIsLocalPlaying(false));
       connectLocalAudio();
     }
@@ -1527,6 +1558,7 @@ export default function App() {
     if (!raw) return;
     const m = raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
     if (m) {
+      lastMusicSourceRef.current = 'youtube';
       setYtUrl(`https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`);
       setYtPlaying(true);
     }
@@ -1538,6 +1570,26 @@ export default function App() {
     iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: cmd, args: [] }), '*');
     if (cmd === 'playVideo') setYtPlaying(true);
     else setYtPlaying(false);
+  };
+
+  const toggleBreakMusic = () => {
+    const anythingPlaying = isRadioPlaying || isLocalPlaying || ytPlaying;
+    if (anythingPlaying) {
+      if (isRadioPlaying && radioUrl) toggleRadio(radioUrl);
+      if (isLocalPlaying) {
+        localAudioRef.current?.pause();
+        setIsLocalPlaying(false);
+      }
+      if (ytPlaying) ytCommand('pauseVideo');
+      return;
+    }
+
+    const hasLocalTrack = Boolean(localFiles[currentTrackIndex] && localAudioRef.current?.src);
+    const hasYouTubeTrack = ytUrl.startsWith('https://www.youtube.com/embed/');
+    const source = lastMusicSourceRef.current ?? (radioUrl ? 'radio' : hasLocalTrack ? 'local' : hasYouTubeTrack ? 'youtube' : null);
+    if (source === 'radio' && radioUrl) toggleRadio(radioUrl);
+    else if (source === 'local' && hasLocalTrack) toggleLocalPlay();
+    else if (source === 'youtube' && hasYouTubeTrack) ytCommand('playVideo');
   };
 
   const handleSpotifyGo = () => {
@@ -1589,6 +1641,20 @@ export default function App() {
   // --- Render Helpers ---
   const progress = timeLeft / totalTime;
   const dashOffset = 2 * Math.PI * 100 * (1 - progress);
+  const hasLocalTrackLoaded = Boolean(localFiles[currentTrackIndex] && localAudioRef.current?.src);
+  const hasYouTubeTrackLoaded = ytUrl.startsWith('https://www.youtube.com/embed/');
+  const hasBreakMusicControl = Boolean(radioUrl || hasLocalTrackLoaded || hasYouTubeTrackLoaded);
+  const breakMusicLabel = isRadioPlaying
+    ? (RADIO_STREAMS.find(station => station.url === radioUrl)?.name || 'Radio')
+    : isLocalPlaying
+      ? (localFiles[currentTrackIndex]?.name || 'Local audio')
+      : ytPlaying
+        ? 'YouTube'
+        : lastMusicSourceRef.current === 'radio'
+          ? (RADIO_STREAMS.find(station => station.url === radioUrl)?.name || 'Radio')
+          : lastMusicSourceRef.current === 'local'
+            ? (localFiles[currentTrackIndex]?.name || 'Local audio')
+            : 'YouTube';
   const sidebarToggleButtonClass = "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white/50 transition-colors hover:bg-white/5 hover:text-white";
 
   const sidebarContent = (() => {
@@ -2429,6 +2495,25 @@ export default function App() {
               >
                 Skip break →
               </button>
+              {hasBreakMusicControl && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-left shadow-lg backdrop-blur-sm">
+                  <div className="min-w-0">
+                    <div className="text-[9px] uppercase tracking-widest text-white/45">Music</div>
+                    <div className="max-w-[180px] truncate text-xs font-medium text-white/80">{breakMusicLabel}</div>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label={isRadioPlaying || isLocalPlaying || ytPlaying ? 'Pause music' : 'Resume music'}
+                    title={isRadioPlaying || isLocalPlaying || ytPlaying ? 'Pause music' : 'Resume music'}
+                    onClick={toggleBreakMusic}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white transition-colors hover:bg-white/20"
+                  >
+                    {isRadioPlaying || isLocalPlaying || ytPlaying
+                      ? <Pause size={18} fill="currentColor" />
+                      : <Play size={18} fill="currentColor" />}
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
