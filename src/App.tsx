@@ -136,6 +136,15 @@ const QUOTES = [
   ["Do the hard jobs first. The easy jobs will take care of themselves.", "Dale Carnegie"]
 ];
 
+const shuffleQuotes = () => {
+  const shuffled = [...QUOTES];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 // --- Helper Functions ---
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60);
@@ -231,7 +240,10 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('tasks');
   const [overlayOpacity, setOverlayOpacity] = useState(54);
   const [accentColor, setAccentColor] = useState('#7c6fff');
-  const [quote, setQuote] = useState(QUOTES[0]);
+  const [quote, setQuote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
+  const quoteDeckRef = useRef<string[][]>([]);
+  const quoteDeckIndexRef = useRef(0);
+  const currentQuoteRef = useRef(quote);
   const [showBreakOverlay, setShowBreakOverlay] = useState(false);
   const [breakType, setBreakType] = useState<Mode>('short');
   const [showHubOverlay, setShowHubOverlay] = useState(false);
@@ -270,6 +282,26 @@ export default function App() {
   const [sessionHistory, setSessionHistory] = useState<{ id: number; mode: Mode; timestamp: number }[]>([]);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
+  const showNextQuote = useCallback(() => {
+    if (quoteDeckRef.current.length === 0 || quoteDeckIndexRef.current >= quoteDeckRef.current.length) {
+      const nextDeck = shuffleQuotes();
+      if (nextDeck.length > 1 && nextDeck[0][0] === currentQuoteRef.current[0]) {
+        [nextDeck[0], nextDeck[1]] = [nextDeck[1], nextDeck[0]];
+      }
+      quoteDeckRef.current = nextDeck;
+      quoteDeckIndexRef.current = 0;
+    }
+
+    const nextQuote = quoteDeckRef.current[quoteDeckIndexRef.current++];
+    currentQuoteRef.current = nextQuote;
+    setQuote(nextQuote);
+  }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(showNextQuote, 45_000);
+    return () => window.clearInterval(interval);
+  }, [showNextQuote]);
+
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
@@ -291,6 +323,7 @@ export default function App() {
   const radioListenerCleanupRef = useRef<(() => void) | null>(null);
   const radioRequestIdRef = useRef(0);
   const sceneSyncedSoundRef = useRef<string | null>(null);
+  const lastMusicSourceRef = useRef<'radio' | 'local' | 'youtube' | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const localAudioRef = useRef<HTMLAudioElement>(null);
   const localSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
@@ -301,9 +334,7 @@ export default function App() {
   const prevBgRef = useRef<string | null>(null);
   const accentLerpRef = useRef(accentColor);
   const pts = useRef<any[]>([]);
-  const frameCount = useRef(0);
-  const tabVisible = useRef(true);
-  const accentHCache = useRef({ color: '', h1: 0, h2: 0, h3: 0 });
+  const accentCache = useRef({ color: '', h1: 0, h2: 0, h3: 0 });
   const dailyStatsDateRef = useRef(localDateKey());
 
   useEffect(() => () => {
@@ -313,8 +344,20 @@ export default function App() {
     if (saveTimeoutRef.current !== null) clearTimeout(saveTimeoutRef.current);
     Object.values(snodesRef.current).forEach(sound => sound.stop());
     radioListenerCleanupRef.current?.();
-    localAudioRef.current?.pause();
-    radioAudioRef.current?.pause();
+    if (localAudioRef.current) {
+      localAudioRef.current.pause();
+      localAudioRef.current.removeAttribute('src');
+      localAudioRef.current.load();
+    }
+    if (radioAudioRef.current) {
+      radioAudioRef.current.pause();
+      radioAudioRef.current.removeAttribute('src');
+      radioAudioRef.current.load();
+    }
+    try { localSourceRef.current?.disconnect(); } catch (e) { }
+    try { radioSourceRef.current?.disconnect(); } catch (e) { }
+    localSourceRef.current = null;
+    radioSourceRef.current = null;
     localObjectUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
     localObjectUrlsRef.current.clear();
     if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
@@ -531,17 +574,34 @@ export default function App() {
     gn.connect(analyserRef.current);
     gnodesRef.current[id] = gn;
 
-    const activeNodes: { stop: () => void }[] = [];
+    const activeCleanups = new Set<() => void>();
     const intervals: number[] = [];
-    const timeouts: number[] = [];
+    const timeouts = new Set<ReturnType<typeof setTimeout>>();
 
-    const addNode = (node: any) => {
-      activeNodes.push({ stop: () => { try { node.stop(); } catch (e) { } } });
+    const registerCleanup = (cleanup: () => void) => {
+      let active = true;
+      const dispose = () => {
+        if (!active) return;
+        active = false;
+        activeCleanups.delete(dispose);
+        try { cleanup(); } catch (e) { }
+      };
+      activeCleanups.add(dispose);
+      return dispose;
     };
 
+    const addNode = (node: any) => registerCleanup(() => {
+      try { if (typeof node.stop === 'function') node.stop(); } catch (e) { }
+      try { node.disconnect(); } catch (e) { }
+    });
+
     const addTimeout = (fn: () => void, delay: number) => {
-      const t = setTimeout(fn, delay);
-      timeouts.push(t as any);
+      let t: ReturnType<typeof setTimeout>;
+      t = setTimeout(() => {
+        timeouts.delete(t);
+        fn();
+      }, delay);
+      timeouts.add(t);
       return t;
     };
 
@@ -562,6 +622,8 @@ export default function App() {
       lgn.connect(gn);
       src.start();
       addNode(src);
+      addNode(f);
+      addNode(lgn);
       return { src, f, lgn };
     };
 
@@ -598,8 +660,13 @@ export default function App() {
         tgn.gain.exponentialRampToValueAtTime(0.001, now + dur);
         
         source.start();
+        const disposeSource = addNode(source);
+        const disposeFilter = addNode(f);
+        const disposeGain = addNode(tgn);
         addTimeout(() => {
-          try { source.stop(); source.disconnect(); tgn.disconnect(); } catch (e) {}
+          disposeSource();
+          disposeFilter();
+          disposeGain();
         }, dur * 1000 + 100);
       };
 
@@ -609,7 +676,7 @@ export default function App() {
       intervals.push(interval as any);
     };
 
-    const runSynthesis = (stype: string, gn: GainNode, addNode: (n: any) => void, createLayer: any, createTexture: any, intervals: number[], timeouts: number[]) => {
+    const runSynthesis = (stype: string, gn: GainNode, addNode: (n: any) => void, createLayer: any, createTexture: any, intervals: number[], timeouts: Set<ReturnType<typeof setTimeout>>) => {
       if (stype === 'tone432' || stype === 'tone528') {
         const o = ctx.createOscillator();
         o.type = 'sine';
@@ -745,22 +812,33 @@ export default function App() {
       
       const source = ctx.createMediaElementSource(audio);
       source.connect(gn);
+      addNode(source);
       
       audio.play().catch(e => {
+        if (gnodesRef.current[id] !== gn) return;
         console.warn('Audio play failed, falling back to synthesis', e);
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
         runSynthesis(stype, gn, addNode, createLayer, createTexture, intervals, timeouts);
       });
       
-      activeNodes.push({ stop: () => { audio.pause(); audio.src = ''; } });
+      registerCleanup(() => {
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+      });
     } else {
       runSynthesis(stype, gn, addNode, createLayer, createTexture, intervals, timeouts);
     }
 
     snodesRef.current[id] = { 
       stop: () => { 
-        activeNodes.forEach(n => n.stop()); 
+        activeCleanups.forEach(dispose => dispose());
+        activeCleanups.clear();
         intervals.forEach(i => clearInterval(i));
         timeouts.forEach(t => clearTimeout(t));
+        timeouts.clear();
       } 
     };
 
@@ -886,7 +964,7 @@ export default function App() {
 
 
   useEffect(() => {
-    initPts(55, activeBg);
+    initPts(48, activeBg);
     
     const handleResize = () => {
       if (canvasRef.current) {
@@ -898,27 +976,18 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     handleResize();
 
-    // Pause when tab is not visible
-    const onVisChange = () => { tabVisible.current = !document.hidden; };
-    document.addEventListener('visibilitychange', onVisChange);
+    const frameInterval = 1000 / 24;
+    let animationTimer: number | null = null;
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    let rafId: number;
+    const stopAnimation = () => {
+      if (animationTimer !== null) window.clearTimeout(animationTimer);
+      animationTimer = null;
+    };
+
     const loop = () => {
-      if (bgType !== 'anim') return;
-      rafId = requestAnimationFrame(loop);
-      if (!tabVisible.current) return;
-      frameCount.current++;
-      if (frameCount.current % 2 !== 0) return; // ~30 fps
-
-      // Cache accent hex → int (only recompute when colour changes)
-      const ca = accentHCache.current;
-      const _acc = accentLerpRef.current;
-      if (ca.color !== _acc) {
-        ca.h1 = parseInt(_acc.slice(1, 3), 16);
-        ca.h2 = parseInt(_acc.slice(3, 5), 16);
-        ca.h3 = parseInt(_acc.slice(5, 7), 16);
-        ca.color = _acc;
-      }
+      animationTimer = null;
+      if (bgType !== 'anim' || document.hidden || motionPreference.matches) return;
       
       let bass = 0, mid = 0, high = 0;
       const isExternalMusic = ytUrl.startsWith('https://www.youtube.com/embed/') || 
@@ -926,9 +995,8 @@ export default function App() {
                              isRadioPlaying;
       
       const analyser = analyserRef.current;
-      if (analyser) {
-        const buf = analyserDataRef.current;
-        if (!buf) return;
+      const buf = analyserDataRef.current;
+      if (analyser && buf) {
         analyser.getByteFrequencyData(buf);
         // Optimized frequency analysis
         for (let i = 0; i < 10; i++) bass += buf[i];
@@ -964,7 +1032,7 @@ export default function App() {
             bgFadeRef.current -= 0.12;
             if (bgFadeRef.current <= 0) {
               prevBgRef.current = activeBg;
-              initPts(55, activeBg);
+              initPts(48, activeBg);
             }
           } else {
             bgFadeRef.current = Math.min(1, bgFadeRef.current + 0.12);
@@ -974,13 +1042,22 @@ export default function App() {
           accentLerpRef.current = lerpColor(accentLerpRef.current, accentColor, 0.05);
           const currentAccent = accentLerpRef.current;
           const rgb = hexToRgb(currentAccent);
+          // Cache hex→int: only recompute when colour changes
+          const ac = accentCache.current;
+          if (ac.color !== currentAccent) {
+            ac.h1 = parseInt(currentAccent.slice(1, 3), 16);
+            ac.h2 = parseInt(currentAccent.slice(3, 5), 16);
+            ac.h3 = parseInt(currentAccent.slice(5, 7), 16);
+            ac.color = currentAccent;
+          }
 
           if (bgType === 'anim') {
             if (activeBg === 'cosmic') {
               bgx.fillStyle = 'rgba(9,9,15,0.15)';
               bgx.fillRect(0, 0, W, H);
               const spBase = 1 + (bass * 3);
-              const hBase = ca.h1;
+              const hBase = ac.h1;
+              
               pts.current.forEach(p => {
                 p.x += p.vx * spBase; p.y += p.vy * spBase;
                 p.a = 0.4 + 0.6 * Math.sin(p.life * 0.05);
@@ -995,7 +1072,7 @@ export default function App() {
             } else if (activeBg === 'aurora') {
               bgx.fillStyle = 'rgba(9,9,15,0.08)';
               bgx.fillRect(0, 0, W, H);
-              const hBase = ca.h1;
+              const hBase = ac.h1;
               const bShift = bass * 30;
               const hShift = high * 40;
               
@@ -1008,7 +1085,7 @@ export default function App() {
                 bgx.fillStyle = gg;
                 bgx.fillRect(0, y - 90, W, 180);
               }
-              const hBase2 = ca.h2;
+              const hBase2 = ac.h2;
               pts.current.forEach(p => {
                 p.x += p.vx; p.y += p.vy; p.life++;
                 p.a = 0.3 + 0.7 * Math.sin(p.life * 0.03);
@@ -1022,7 +1099,7 @@ export default function App() {
               bgx.fillStyle = 'rgba(9,9,15,0.1)';
               bgx.fillRect(0, 0, W, H);
               const spBase = 1 + (bass * 4);
-              const hBase = ca.h3;
+              const hBase = ac.h3;
               const bShift = bass * 60;
               
               pts.current.forEach(p => {
@@ -1038,7 +1115,8 @@ export default function App() {
               bgx.fillStyle = 'rgba(9,9,15,0.07)';
               bgx.fillRect(0, 0, W, H);
               const cx = W / 2, cy = H / 2, gsp = 1 + bass * 2;
-              const hBase = ca.h1;
+              const hBase = ac.h1;
+              
               pts.current.forEach((p, i) => {
                 const ang = bgT.current * gsp + i * 0.1, r = 30 + i * 0.65;
                 p.x = cx + Math.cos(ang) * r;
@@ -1068,12 +1146,33 @@ export default function App() {
         }
       }
 
+      animationTimer = window.setTimeout(loop, frameInterval);
     };
-    if (bgType === 'anim') loop();
+
+    const scheduleAnimation = () => {
+      if (bgType !== 'anim' || document.hidden || motionPreference.matches || animationTimer !== null) return;
+      animationTimer = window.setTimeout(loop, frameInterval);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) stopAnimation();
+      else scheduleAnimation();
+    };
+
+    const handleMotionPreferenceChange = () => {
+      if (motionPreference.matches) stopAnimation();
+      else scheduleAnimation();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    motionPreference.addEventListener('change', handleMotionPreferenceChange);
+    scheduleAnimation();
+
     return () => {
       window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(rafId);
-      document.removeEventListener('visibilitychange', onVisChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      motionPreference.removeEventListener('change', handleMotionPreferenceChange);
+      stopAnimation();
     };
   }, [bgType, activeBg, accentColor, initPts]);
 
@@ -1129,6 +1228,7 @@ export default function App() {
     setRadioUrl(url);
     setIsRadioPlaying(true);
     setRadioError(null);
+    lastMusicSourceRef.current = 'radio';
     audio.volume = musicVolume;
 
     const onAudioError = (e: Event) => {
@@ -1283,13 +1383,8 @@ export default function App() {
       timerExpiredRef.current = false;
       startTimerRef.current(breakTime);
 
-      // Change to a random quote
-      const currentIndex = QUOTES.findIndex(q => q[0] === quote[0]);
-      let newIndex;
-      do {
-        newIndex = Math.floor(Math.random() * QUOTES.length);
-      } while (newIndex === currentIndex && QUOTES.length > 1);
-      setQuote(QUOTES[newIndex]);
+      // Session changes also advance through the shuffled quote deck.
+      showNextQuote();
     } else {
       setShowBreakOverlay(false);
       setMode('focus');
@@ -1297,7 +1392,7 @@ export default function App() {
       setTimeLeft(nextTime);
       setTotalTime(nextTime);
     }
-  }, [mode, config, sessionsDone, totalTime, initAudio, resumeCtx, quote]);
+  }, [mode, config, sessionsDone, totalTime, initAudio, resumeCtx, showNextQuote]);
 
   const startTimer = useCallback((durationSeconds = timeLeft) => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -1421,6 +1516,7 @@ export default function App() {
   const playLocalTrack = (index: number) => {
     setCurrentTrackIndex(index);
     if (localAudioRef.current) {
+      lastMusicSourceRef.current = 'local';
       localAudioRef.current.src = localFiles[index].url;
       void localAudioRef.current.play().catch(() => setIsLocalPlaying(false));
       connectLocalAudio();
@@ -1446,6 +1542,7 @@ export default function App() {
       localAudioRef.current.pause();
       setIsLocalPlaying(false);
     } else {
+      lastMusicSourceRef.current = 'local';
       void localAudioRef.current.play().catch(() => setIsLocalPlaying(false));
       connectLocalAudio();
     }
@@ -1470,6 +1567,7 @@ export default function App() {
     if (!raw) return;
     const m = raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
     if (m) {
+      lastMusicSourceRef.current = 'youtube';
       setYtUrl(`https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`);
       setYtPlaying(true);
     }
@@ -1481,6 +1579,26 @@ export default function App() {
     iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: cmd, args: [] }), '*');
     if (cmd === 'playVideo') setYtPlaying(true);
     else setYtPlaying(false);
+  };
+
+  const toggleBreakMusic = () => {
+    const anythingPlaying = isRadioPlaying || isLocalPlaying || ytPlaying;
+    if (anythingPlaying) {
+      if (isRadioPlaying && radioUrl) toggleRadio(radioUrl);
+      if (isLocalPlaying) {
+        localAudioRef.current?.pause();
+        setIsLocalPlaying(false);
+      }
+      if (ytPlaying) ytCommand('pauseVideo');
+      return;
+    }
+
+    const hasLocalTrack = Boolean(localFiles[currentTrackIndex] && localAudioRef.current?.src);
+    const hasYouTubeTrack = ytUrl.startsWith('https://www.youtube.com/embed/');
+    const source = lastMusicSourceRef.current ?? (radioUrl ? 'radio' : hasLocalTrack ? 'local' : hasYouTubeTrack ? 'youtube' : null);
+    if (source === 'radio' && radioUrl) toggleRadio(radioUrl);
+    else if (source === 'local' && hasLocalTrack) toggleLocalPlay();
+    else if (source === 'youtube' && hasYouTubeTrack) ytCommand('playVideo');
   };
 
   const handleSpotifyGo = () => {
@@ -1532,19 +1650,27 @@ export default function App() {
   // --- Render Helpers ---
   const progress = timeLeft / totalTime;
   const dashOffset = 2 * Math.PI * 100 * (1 - progress);
+  const hasLocalTrackLoaded = Boolean(localFiles[currentTrackIndex] && localAudioRef.current?.src);
+  const hasYouTubeTrackLoaded = ytUrl.startsWith('https://www.youtube.com/embed/');
+  const hasBreakMusicControl = Boolean(radioUrl || hasLocalTrackLoaded || hasYouTubeTrackLoaded);
+  const breakMusicLabel = isRadioPlaying
+    ? (RADIO_STREAMS.find(station => station.url === radioUrl)?.name || 'Radio')
+    : isLocalPlaying
+      ? (localFiles[currentTrackIndex]?.name || 'Local audio')
+      : ytPlaying
+        ? 'YouTube'
+        : lastMusicSourceRef.current === 'radio'
+          ? (RADIO_STREAMS.find(station => station.url === radioUrl)?.name || 'Radio')
+          : lastMusicSourceRef.current === 'local'
+            ? (localFiles[currentTrackIndex]?.name || 'Local audio')
+            : 'YouTube';
+  const sidebarToggleButtonClass = "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white/50 transition-colors hover:bg-white/5 hover:text-white";
 
   const sidebarContent = (() => {
     return (
       <div className="flex flex-col h-full">
         <div className="p-4 border-b border-white/5 flex items-center justify-between">
           <div className="font-display text-[20px] font-bold text-white/90">Mimodoro<span style={{ color: accentColor }}>.</span></div>
-          <button 
-            onClick={() => setIsSidebarOpen(false)}
-            aria-label="Close settings sidebar"
-            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-all"
-          >
-            <PanelRightOpen size={18} />
-          </button>
         </div>
         <div className="flex items-center gap-1 p-2 border-b border-white/5">
           {/* Mobile specific close removed as we have a global one now */}
@@ -1640,7 +1766,7 @@ export default function App() {
                       setActiveBg(b.id); 
                       setBgType(b.id === 'none' ? 'none' : 'anim'); 
                       setAccentColor(b.accent);
-                      initPts(80, b.id);
+                      initPts(48, b.id);
                     }}
                     className={`relative aspect-video rounded-xl overflow-hidden cursor-pointer transition-all ${activeBg === b.id ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
                     style={{ borderColor: activeBg === b.id ? accentColor : 'transparent' }}
@@ -2198,13 +2324,15 @@ export default function App() {
       {/* App UI */}
       <div className="relative z-10 h-full overflow-hidden">
         {/* Floating Sidebar Toggle (Top Right) */}
-        {!isSidebarOpen && !showHubOverlay && (
+        {!showHubOverlay && (
           <button 
-            onClick={() => setIsSidebarOpen(true)}
-            aria-label="Open settings sidebar"
-            className="fixed top-4 right-4 z-[9999] w-12 h-12 flex items-center justify-center rounded-2xl border border-white/10 bg-black/40 text-white/70 cursor-pointer"
+            type="button"
+            onClick={() => setIsSidebarOpen(open => !open)}
+            aria-label={isSidebarOpen ? 'Close settings sidebar' : 'Open settings sidebar'}
+            title={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+            className={`fixed top-4 right-4 z-[9999] ${sidebarToggleButtonClass}`}
           >
-            <PanelRightOpen size={24} />
+            {isSidebarOpen ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
           </button>
         )}
 
@@ -2376,6 +2504,25 @@ export default function App() {
               >
                 Skip break →
               </button>
+              {hasBreakMusicControl && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-left shadow-lg backdrop-blur-sm">
+                  <div className="min-w-0">
+                    <div className="text-[9px] uppercase tracking-widest text-white/45">Music</div>
+                    <div className="max-w-[180px] truncate text-xs font-medium text-white/80">{breakMusicLabel}</div>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label={isRadioPlaying || isLocalPlaying || ytPlaying ? 'Pause music' : 'Resume music'}
+                    title={isRadioPlaying || isLocalPlaying || ytPlaying ? 'Pause music' : 'Resume music'}
+                    onClick={toggleBreakMusic}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white transition-colors hover:bg-white/20"
+                  >
+                    {isRadioPlaying || isLocalPlaying || ytPlaying
+                      ? <Pause size={18} fill="currentColor" />
+                      : <Play size={18} fill="currentColor" />}
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
