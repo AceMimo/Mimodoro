@@ -912,11 +912,12 @@ export default function App() {
 
       // Cache accent hex → int (only recompute when colour changes)
       const ca = accentHCache.current;
-      if (ca.color !== currentAccent) {
-        ca.h1 = parseInt(currentAccent.slice(1, 3), 16);
-        ca.h2 = parseInt(currentAccent.slice(3, 5), 16);
-        ca.h3 = parseInt(currentAccent.slice(5, 7), 16);
-        ca.color = currentAccent;
+      const _acc = accentLerpRef.current;
+      if (ca.color !== _acc) {
+        ca.h1 = parseInt(_acc.slice(1, 3), 16);
+        ca.h2 = parseInt(_acc.slice(3, 5), 16);
+        ca.h3 = parseInt(_acc.slice(5, 7), 16);
+        ca.color = _acc;
       }
       
       let bass = 0, mid = 0, high = 0;
